@@ -85,3 +85,14 @@ RED
 			(cons ar1 nil)
 			nil)
 		nil))
+		
+(defun f1 (ar1 ar2 ar3 ar4)
+	`((,ar1 ,ar2)(,ar3 ,ar4)))
+	
+(defun f2 (ar1 ar2)
+	`((,ar1)(,ar2)))
+	
+(defun f3 (ar1)
+	`(((,ar1))))
+	
+'(1 ((2) ((3) (4)) (5)) 6)
