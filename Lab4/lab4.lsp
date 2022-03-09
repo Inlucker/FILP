@@ -46,9 +46,30 @@ NIL
 		(cons (car lst) (f2 (cdr lst)))))
 		
 ;Task5
-(defun dice_roll()
+(defun roll-dice()
 	(print (cons (+ 1 (random 6))
 				 (+ 1 (random 6)))))
 
-(defun dice_game()
+(defun calc-sum(roll)
+	(+ (car roll)(cdr roll)))
+	
+(defun check-win(sum)
+	(or (= sum 7) (= sum 11)))
+
+(defun check-reroll(roll)
+	(or (equal roll '(1.1)) (equal roll '(6.6))))
+	
+(defun turn1
+	(setq roll (roll-dice))
+	(cond ((check-win roll)(print "Player1 won!"))
+		  ((check-reroll roll)(turn1))
+		  (T (calc-sum roll))))
+		  
+(defun turn2
+	(setq roll (roll-dice))
+	(cond ((check-win roll)(print "Player2 won!"))
+		  ((check-reroll roll)(turn2))
+		  (T (calc-sum roll)))) 
+
+(defun dice-game()
 	)
