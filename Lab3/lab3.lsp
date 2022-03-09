@@ -59,3 +59,30 @@
 			(if (and (evenp x) (evenp y))
 				'both_even
 				'difference))))
+				
+(defun solve(a b c)
+	(setq D (- (* b b) (* 4 a c)))
+	(cond ((< D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
+					(format str "Нет корней")))
+		  ((= D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
+					(format str "Один корень: ~A" (/ (- b) (* 2 a)))))
+		  ((> D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
+					(format str "Два корня: ~A; ~A" (/ (- (- b) (sqrt D)) (* 2 a)) (/ (+ (- b) (sqrt D)) (* 2 a)))))))
+		  
+(with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
+(format str "Hello world!"))
+
+;добавление првоерки деления на ноль
+(defun solve(a b c)
+	(cond ((= a c 0)(setq D (- (* b b) (* 4 a c))))
+		  (T ((setq D (- (* b b) (* 4 a c)))
+				(cond ((< D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
+							(format str "Нет корней")))
+				   ((= D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
+							(format str "Один корень: ~A" (/ (- b) (* 2 a)))))
+				   ((> D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
+							(format str "Два корня: ~A; ~A" (/ (- (- b) (sqrt D)) (* 2 a)) (/ (+ (- b) (sqrt D)) (* 2 a)))))))))
+	)
+		  
+(with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
+(format str "Hello world!"))
