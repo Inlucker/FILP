@@ -115,4 +115,23 @@
 
 (defun solve-and-print(a b c)
 	(my-print (solve a b c)))
+	
+;fiveAM
+(ql:quickload "fiveam")
+
+(fiveam:test D-below-zero
+	(fiveam:is (equal '(Нет корней) (solve 1 1 1))))
+  
+(fiveam:test D-equals-zero
+	(fiveam:is (equal '(Один корень = -1) (solve 1 2 1))))
 						
+(fiveam:test D-over-zero
+	(fiveam:is (equal '(ДВА КОРНЯ = -2.618034 И -0.381966) (solve 1 3 1))))
+  
+(fiveam:test a-equals-zero
+	(fiveam:is (equal '(Один корень = -1/2) (solve 0 2 1))))
+
+(fiveam:test any-solution
+	(fiveam:is (equal '(Любой корень) (solve 0 0 1))))
+  
+(fiveam:run!)
