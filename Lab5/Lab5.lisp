@@ -1,5 +1,5 @@
 ;1
-(defun is-palindrom1 (lst)
+(defun is-palindrom (lst)
 	(equal lst (reverse lst)))
 
 (defun move-to (lst result)
@@ -97,8 +97,64 @@
 (swap-to-right lst)
 
 ;7
+(setf s1 '((a b) (c d)))
 
+(defun add-to-set(set1 el)
+	(if (member el set1 :test #'equal)
+		set1
+		(nconc set1 (list el))))
 
+(add-to-set s1 '(f g))
 
+;8 
+;numbers
+(defun f81(n lst)
+	(setf (car lst) (* (car lst) n))
+	lst)
+	
+;objects
+(defun f82(n lst)
+	(if (member T (mapcar #'numberp lst))
+		(let ((i (- (length lst)(length (member T (mapcar #'numberp lst))))))
+			 (setf (nth i lst) (* (nth i lst) n))
+			 lst)))
+		
+(setf lst '(1 2 3))
+(f81 7 lst)
 
+(setf lst '(1 2 3))
+(f82 7 lst)
+(setf lst '(a 2 c))
+(f82 7 lst)
+(setf lst '(a b c))
+(f82 7 lst)
 
+;9
+(defun is-between(el a b)
+	(if (< a b)
+		(<= a el b)
+		(<= b el a)))
+
+(defun f9(lst a b res)
+	(cond ((null lst) res)
+		  ((is-between (car lst) a b) (f9 (cdr lst) a b (append res `(,(car lst)))))
+		  (T (f9 (cdr lst) a b res))))
+;С lambda 
+(defun f9(lst a b res)
+	(cond ((null lst) res)
+		  (((lambda (el)
+					(if (< a b)
+						(<= a el b)
+						(<= a el b)))
+			(car lst)) (f9 (cdr lst) a b (append res `(,(car lst)))))
+		  (T (f9 (cdr lst) a b res))))
+
+(defun select-between(lst a b)
+	(sort (f9 lst a b ()) #'<))
+	
+(setf lst '(5 4 3 2 1))
+(select-between lst 2 4)
+
+;Тест lambda
+((lambda (x) (+ x 2)) 3)
+	
