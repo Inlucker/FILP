@@ -12,7 +12,7 @@
 (defun mul-lst1(n lst)
 	(mapcar #'(lambda (x) (* x n)) lst))
 	
-;numbers
+;objcets
 (defun mul-lst2(n lst)
 	(mapcar #'(lambda (x)
 				(if (numberp x)
@@ -64,8 +64,8 @@
 (defun select-between(lst a b)
 	(sort
 	(mapcan #'(lambda (el)
-					(cond ((or (<= a el b) (<= b el a)) `(,el))
-						   (T NIL))) lst) #'<))
+				(cond ((or (<= a el b) (<= b el a)) `(,el))
+					   (T NIL))) lst) #'<))
 	
 (setf lst '(5 4 3 2 1))
 (select-between lst 2 4)
