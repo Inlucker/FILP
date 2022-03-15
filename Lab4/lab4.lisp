@@ -48,7 +48,8 @@ NIL
 ;Task5
 (defun roll(n)
 	(let ((d1 (+ 1 (random 6))) (d2 (+ 1 (random 6))))
-		 (format t "Player~A rolled ~A+~A=~A~%" n d1 d2 (+ d1 d2))
+		 (format t "Player~A rolled ~A+~A=~A~%"
+			n d1 d2 (+ d1 d2))
 		 (+ d1 d2)))
 	
 (defun check_win(sum)

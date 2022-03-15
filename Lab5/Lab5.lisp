@@ -13,18 +13,25 @@
 	(equal lst (my-reverse lst)))
 	
 ;2
-(defun f2 (set1 set2 res)
+(defun set1-in-set2-r (set1 set2 res)
 	(cond ((null set1) T)
-		  ((member (car set1) set2) (f2 (cdr set1) set2 res))
+		  ((member (car set1) set2)
+		   (set1-in-set2-r (cdr set1) set2 res))
 		  (T NIL)))
 
 (defun set1-in-set2 (set1 set2)
-	(f2 set1 set2 T))
+	(set1-in-set2-r set1 set2 T))
 
 (defun set-equal(set1 set2)
 	(and (set1-in-set2 set1 set2)
 		 (set1-in-set2 set2 set1)))
-		 
+
+(setf s1 '(a b c))
+(setf s2 '(c a b))
+(setf s3 '(c a d))
+(set-equal s1 s2)
+(set-equal s1 s3)
+ 
 ;3				   
 (setf t1 '((Russia . Moscow)
 		   (Ukraine . Kiev)
@@ -44,19 +51,25 @@
 (get-cap t1 'Russia)
 (get-coun t1 'Moscow)
 	
-;4lst	
-(defun f4(lst res)
+;4
+(defun without-last-r(lst res)
 	(cond ((null (cdr lst)) res)
-          (T (f4 (cdr lst)(append res `(,(car lst)))))))
+          (T (without-last-r (cdr lst)
+						     (append res `(,(car lst)))))))
 
 (defun without-last(lst)
-	(f4 lst ()))
+	(without-last-r lst ()))
 
 (defun swap-first-last(lst)
 	(cond ((or (null lst) (null (cdr lst))) lst)
 		  (T (append (last lst)
 					 (without-last (cdr lst))
 					 `(,(car lst))))))
+
+(swap-first-last '())
+(swap-first-last '(1))
+(swap-first-last '(1 2))
+(swap-first-last '(1 2 3))
 
 ;5
 (defun swap-two-ellement(lst n1 n2)
@@ -66,8 +79,6 @@
 		 lst))
 		 
 ;6
-(setf lst '(a b c d))
-
 (defun move-left(lst tmp)
 	(cond ((null (cdr lst)) (setf (car lst) tmp))
 		  (T (setf (car lst) (second lst))
@@ -78,8 +89,6 @@
 		  (T (let ((tmp (first lst)))
 				  (move-left lst tmp)
 				  lst))))
-
-(swap-to-left lst)
 
 (defun move-right(lst tmp2)
 	(cond ((null lst) nil)
@@ -94,16 +103,17 @@
 				  (setf (car lst) tmp)
 				  lst))))
 
+(setf lst '(a b c d))
+(swap-to-left lst)
 (swap-to-right lst)
 
 ;7
-(setf s1 '((a b) (c d)))
-
 (defun add-to-set(set1 el)
 	(if (member el set1 :test #'equal)
 		set1
 		(nconc set1 (list el))))
 
+(setf s1 '((a b) (c d)))
 (add-to-set s1 '(f g))
 
 ;8 
@@ -140,17 +150,18 @@
 		  ((is-between (car lst) a b) (f9 (cdr lst) a b (append res `(,(car lst)))))
 		  (T (f9 (cdr lst) a b res))))
 ;С lambda 
-(defun f9(lst a b res)
+(defun s-b-r(lst a b res)
 	(cond ((null lst) res)
 		  (((lambda (el)
 					(if (< a b)
 						(<= a el b)
 						(<= a el b)))
-			(car lst)) (f9 (cdr lst) a b (append res `(,(car lst)))))
-		  (T (f9 (cdr lst) a b res))))
+			(car lst))
+		   (s-b-r (cdr lst) a b (append res `(,(car lst)))))
+		  (T (s-b-r (cdr lst) a b res))))
 
 (defun select-between(lst a b)
-	(sort (f9 lst a b ()) #'<))
+	(sort (s-b-r lst a b ()) #'<))
 	
 (setf lst '(5 4 3 2 1))
 (select-between lst 2 4)
