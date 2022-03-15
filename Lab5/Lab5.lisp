@@ -25,11 +25,11 @@
 	(and (set1-in-set2 set1 set2)
 		 (set1-in-set2 set2 set1)))
 		 
-;3
-(setf t1 (list (cons 'Russia 'Moscow)
-				   (cons 'Ukraine 'Kiev)
-			       (cons 'USA 'Washington)
-			       (cons 'England 'London)))
+;3				   
+(setf t1 '((Russia . Moscow)
+		   (Ukraine . Kiev)
+		   (USA . Washington)
+		   (England . England)))
 
 (defun get-cap (tab coun)
 	(cond ((null tab) NIL)
@@ -66,3 +66,39 @@
 		 lst))
 		 
 ;6
+(setf lst '(a b c d))
+
+(defun move-left(lst tmp)
+	(cond ((null (cdr lst)) (setf (car lst) tmp))
+		  (T (setf (car lst) (second lst))
+			  (move-left (cdr lst) tmp))))
+
+(defun swap-to-left(lst)
+	(cond ((or (null lst) (null (cdr lst))) lst)
+		  (T (let ((tmp (first lst)))
+				  (move-left lst tmp)
+				  lst))))
+
+(swap-to-left lst)
+
+(defun move-right(lst tmp2)
+	(cond ((null lst) nil)
+		  (T (let ((tmp3 (car lst)))
+				  (setf (car lst) tmp2)
+				  (move-right (cdr lst) tmp3)))))
+
+(defun swap-to-right(lst)
+	(cond ((or (null lst) (null (cdr lst))) lst)
+		  (T (let ((tmp (car (last lst))))
+				  (move-right lst (car lst))
+				  (setf (car lst) tmp)
+				  lst))))
+
+(swap-to-right lst)
+
+;7
+
+
+
+
+
