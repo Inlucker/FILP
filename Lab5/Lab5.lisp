@@ -155,7 +155,7 @@
 		  (((lambda (el)
 					(if (< a b)
 						(<= a el b)
-						(<= a el b)))
+						(<= b el a)))
 			(car lst))
 		   (s-b-r (cdr lst) a b (append res `(,(car lst)))))
 		  (T (s-b-r (cdr lst) a b res))))
@@ -165,6 +165,7 @@
 	
 (setf lst '(5 4 3 2 1))
 (select-between lst 2 4)
+(select-between lst 4 2)
 
 ;Тест lambda
 ((lambda (x) (+ x 2)) 3)
