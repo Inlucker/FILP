@@ -9,20 +9,24 @@
 ;3
 (defun get-first-lst(lst)
 	(cond ((null lst) NIL)
-		  ((and (listp (car lst)) (not (null (car lst)))) (car lst))
+		  ((and (listp (car lst)) (not (null (car lst))))
+		   (car lst))
 		  (T (get-first-lst (cdr lst)))))
 
 ;7
+;numbers
 (defun mul1(n lst)
 	(cond ((null lst) NIL)
 		  (T (setf (car lst) (* n (car lst)))
 			 (mul1 n (cdr lst))))
 	lst)
 
+;objects
 (defun mul2(n lst)
 	(cond ((null lst) NIL)
-		  ((numberp (car lst)) (setf (car lst) (* n (car lst)))
-			 (mul2 n (cdr lst)))
+		  ((numberp (car lst))
+		   (setf (car lst) (* n (car lst)))
+		   (mul2 n (cdr lst)))
 		  (T (mul2 n (cdr lst))))
 	lst)
 
@@ -76,7 +80,8 @@
 		  ((numberp (car lst))
 		   (rec-add2-r (cdr lst) (+ res (car lst))))
 		  ((and (listp (car lst)) (not (null lst)))
-		   (rec-add2-r (cdr lst)(rec-add2-r (car lst) res)))))
+		   (rec-add2-r (cdr lst)
+					   (rec-add2-r (car lst) res)))))
 		   
 (defun rec-add2(lst)
 	(rec-add2-r lst 0))
@@ -109,7 +114,8 @@
 (defun get-odd(lst)
 	;(print lst)
 	(cond ((null lst) NIL)
-		  ((and (numberp (car lst)) (my-oddp (car lst))) (car lst))
+		  ((and (numberp (car lst)) (my-oddp (car lst)))
+		   (car lst))
 		  ((and (listp (car lst)) (not (null lst)))
 		   (or (get-odd (car lst)) (get-odd (cdr lst))))
 		  (T (get-odd (cdr lst)))))
@@ -120,8 +126,8 @@
 ;12
 (defun get-squares-r(lst res)
 	(cond ((null lst) res)
-		  (T (get-squares-r (cdr lst) (cons (* (car lst) (car lst)) res)))))
-		  
+		  (T (get-squares-r (cdr lst)
+					(cons (* (car lst) (car lst)) res)))))
 (defun get-squares(lst)
 	(my-reverse (get-squares-r lst NIL)))
 	
