@@ -2,10 +2,28 @@
 (defun move-to (lst result)
     (cond ((null lst) result)
           (T (move-to (cdr lst) (cons (car lst) result)))))
+		  
+(defun move-to (lst result)
+    (cond ((null lst) result)
+          (T (move-to (cdr lst) `(,(car lst) . ,result)))))
+		  
+(defun move-to (lst res)
+    (cond ((null lst) res)
+          (T (move-to (cdr lst) `(,(car lst) ,@res )))))
           
 (defun my-reverse (lst)
     (move-to lst ()))
+
+(setf lst '(a b c))
+(my-reverse lst)
+
+(defun mr2(lst res)
+	(cond ((null lst) res)
+		  (T ())))
 	
+(setf lst '(a b c))
+(mr2 lst)
+
 ;3
 (defun get-first-lst(lst)
 	(cond ((null lst) NIL)
@@ -99,8 +117,7 @@
 		  
 ;10
 (defun my-oddp(x)
-	(if (= (rem x 2) 1)
-		T))
+	(= (rem x 2) 1))
 
 (defun allodd(lst)
 	(cond ((null lst) T)
@@ -132,3 +149,7 @@
 	(my-reverse (get-squares-r lst NIL)))
 	
 (get-squares '(1 2 3 4 5))
+
+(defun gs(lst)
+	(cond ((null lst) nil)
+		  (T (cons (* (car lst)(car lst)) (gs (cdr lst))))))

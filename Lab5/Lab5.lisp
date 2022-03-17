@@ -169,4 +169,13 @@
 
 ;Тест lambda
 ((lambda (x) (+ x 2)) 3)
-	
+
+;Тест
+(setf m '((1 2 3)(4 5 6)(7 8 9)))
+(apply #'mapcar #'list m)
+(apply #'mapcar #'+ m)
+
+((1 2 3)(4 5 6)(7 8 9))
+
+(mapcar #'list '((1 2 3)(4 5 6)(7 8 9)))
+(apply #'+ '(1 2 3))

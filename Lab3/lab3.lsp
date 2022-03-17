@@ -60,47 +60,20 @@
 				'both_even
 				'difference))))
 
-;защита		
-(defun solve(a b c)
-	(setq D (- (* b b) (* 4 a c)))
-	(cond ((< D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
-					(format str "Нет корней")))
-		  ((= D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
-					(format str "Один корень: ~A" (/ (- b) (* 2 a)))))
-		  ((> D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
-					(format str "Два корня: ~A; ~A" (/ (- (- b) (sqrt D)) (* 2 a)) (/ (+ (- b) (sqrt D)) (* 2 a)))))))
-
 ;вывод в файл		 
 (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
 (format str "Hello world!"))
 
-;добавление првоерки деления на ноль
+;защита
 (defun solve(a b c)
-	(cond ((= a b 0)
-			(with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
-			(format str "Любой корень" )))
-		  ((= a 0)
-			(with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
-			(format str "Один корень: ~A" (/ (- c) b))))
-		  (T (let ((D (- (* b b) (* 4 a c)))) 
-			(cond
-			((< D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
-					(format str "Нет корней")))
-			((= D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
-					(format str "Один корень: ~A" (/ (- b) (* 2 a)))))
-			((> D 0) (with-open-file (str "filename.txt" :direction :output :if-exists :supersede :if-does-not-exist :create)
-					(format str "Два корня: ~A; ~A" (/ (- (- b) (sqrt D)) (* 2 a)) (/ (+ (- b) (sqrt D)) (* 2 a))))))))
-	))
-
-;разделение логики и вывода в файл (ПРАВИЛЬНЫЙ ВАРИАНТ)
-(defun solve(a b c)
-	(cond ((= a b 0) '(Любой корень))
+	(cond ((= a b c 0) '(Любой корень))
+		  ((= a b 0) '(Нет корней))
 		  ((= a 0) `(Один корень = ,(/ (- c) b)))
-		  (T (let ((D (- (* b b) (* 4 a c)))) 
+		  (T (let* ((D (- (* b b) (* 4 a c))) (x1 (/ (- (- b) (sqrt D)) (* 2 a))) (x2 (/ (+ (- b) (sqrt D)) (* 2 a)))) 
 			(cond
-			((< D 0) '(Нет корней))
+			((< D 0) `(Комплексные корни = ,(realpart x1) ,(imagpart x1)i и ,(realpart x2) ,(imagpart x2)i))
 			((= D 0) `(Один корень = ,(/ (- b) (* 2 a))))
-			((> D 0) `(Два корня = ,(/ (- (- b) (sqrt D)) (* 2 a)) и ,(/ (+ (- b) (sqrt D)) (* 2 a)))))))
+			((> D 0) `(Два корня = ,x1 и ,x2)))))
 	))
 	
 (defun print-in-file(str lst)
@@ -120,7 +93,7 @@
 (ql:quickload "fiveam")
 
 (fiveam:test D-below-zero
-	(fiveam:is (equal '(Нет корней) (solve 1 1 1))))
+	(fiveam:is (equal '(КОМПЛЕКСНЫЕ КОРНИ = 3.0 -2.0 I И 3.0 2.0 I ) (solve 1 -6 13))))
   
 (fiveam:test D-equals-zero
 	(fiveam:is (equal '(Один корень = -1) (solve 1 2 1))))
@@ -131,7 +104,13 @@
 (fiveam:test a-equals-zero
 	(fiveam:is (equal '(Один корень = -1/2) (solve 0 2 1))))
 
+(fiveam:test no-solution
+	(fiveam:is (equal '(Нет корней) (solve 0 0 1))))
+	
 (fiveam:test any-solution
-	(fiveam:is (equal '(Любой корень) (solve 0 0 1))))
+	(fiveam:is (equal '(бред корень) (solve 0 0 0))))
   
 (fiveam:run!)
+
+(solve-and-print 1 2 1)
+(solve-and-print 2 -3 1)+++
