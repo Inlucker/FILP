@@ -170,12 +170,32 @@
 ;Тест lambda
 ((lambda (x) (+ x 2)) 3)
 
-;Тест
+;Тест mapcar и apply
 (setf m '((1 2 3)(4 5 6)(7 8 9)))
 (apply #'mapcar #'list m)
+; = ((1 4 7) (2 5 8) (3 6 9))
 (apply #'mapcar #'+ m)
 
-((1 2 3)(4 5 6)(7 8 9))
+;Диаграмма
+(apply #'mapcar #'list m)
+
+; m = ((1 2 3)(4 5 6)(7 8 9))
+; (apply #'mapcar #'list m)
+; Применить MAPCAR к ((1 2 3)(4 5 6)(7 8 9))
+; Применить list c параметрами 1 4 7, 2 5 8 и 3 6 9
+; и объеденить результаты list'ом =
+; = (list (list 1 4 7) (list 2 5 8) (list 3 6 9))
+; = ((1 4 7) (2 5 8) (3 6 9))
 
 (mapcar #'list '((1 2 3)(4 5 6)(7 8 9)))
 (apply #'+ '(1 2 3))
+
+(apply #'mapcar #'list '((1 2 3)))
+(apply #'mapcar #'+ '((1 2 3)(4 5)(6)))
+
+(defun f1(x) (+ x))
+(defun f2(x y) (+ x y))
+(defun f3(x y z) (+ x y z))
+(mapcar #'f1 '(1 2 3))
+(mapcar #'f2 '(1 2 3) '(3 4 5))
+(mapcar #'f3 '(1 2 3) '(3 4 5) '(6 7 8))
