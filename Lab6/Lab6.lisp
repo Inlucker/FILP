@@ -90,3 +90,97 @@
 	
 (setf lol '((1 2)(3 4)))
 (get-len lol)
+		 
+;???????????????????
+(defun basis-r(n M res)
+	(cond ((< n M) res)
+		  (T (nconc res (list (next-prime (car (last res)))))
+			 (basis-r n (apply #'* res) res))))
+
+(defun basis(n)
+	(cdr (basis-r n 1 '(1))))
+;???????????????????
+
+;defend: 10сс->СОК
+(defun primep (n &optional (a 2) (b (isqrt n)))
+	(print `(,n ,a ,b))
+	(cond ((> a b))
+		  ((zerop (mod n a)) nil)
+          (t (primep n (1+ a) b))))
+
+;Предикат - является ли число простым
+(defun primep-r (n a)
+	(let ((b (isqrt n)))
+		 (cond ((> a b))
+			   ((zerop (mod n a)) NIL)
+			   (T (primep-r n (+ a 1))))))
+
+(defun primep (n)
+	(primep-r n 2))
+
+;Все простые числа до n
+(defun primes-r(n a)
+	(cond ((> a n) nil)
+		  ((primep a) (cons a (primes-r n (+ a 1))))
+		  (T (primes-r n (+ a 1)))))
+
+(defun primes(n)
+	(primes-r n 1))
+
+;Следующее простое число	
+(defun next-prime(n)
+	(cond ((null n) 1)
+		  ((primep (+ n 1)) (+ n 1))
+		  (T (next-prime (+ n 1)))))
+
+;добавление в конец
+(defun lst-wtih-n(lst n)
+	(append lst `(,n)))
+
+;Определение базиса для числа
+(defun basis-r(n M res)
+	(cond ((< n M) res)
+		  (T (let ((next-res (lst-wtih-n res (next-prime (car (last res))))))
+				  (basis-r n (apply #'* next-res) next-res)))))
+
+(defun basis(n)
+	(cdr (basis-r n 1 '(1))))
+
+;Первеод числа в СОК	
+(defun RNS(n &optional (b (basis n)))
+	(mapcar #'(lambda (x) (mod n x)) b))
+	
+(defun to-RNS(n &optional (b (basis n)))
+	(format t "Число ~A можно представить в виде кортежа ~A в СОК с базисом ~A"
+					n (mapcar #'(lambda (x) (mod n x)) b) b))
+
+;Mi
+(defun get-Ms-r(bas M)
+	(cond ((null bas) nil)
+		  (T (cons (/ M (car bas)) (get-Ms-r (cdr bas) M)))))
+					
+(defun get-Ms(b)
+	(get-Ms-r b (apply #'* b)))
+	
+;Bi
+(defun Bi-r(p Mi res)
+	(cond ((= (mod (* Mi res) p) 1) res)
+		  (T (Bi-r p Mi (+ res 1)))))
+		  
+(defun Bi(p Mi)
+	(Bi-r p Mi 1))
+
+(defun get-Bs(bas &optional (Ms (get-Ms bas)))
+	(mapcar #'Bi bas Ms))
+
+;Перевод числа обратно в 10сс		
+(defun from-RNS(x b)
+	(mod (apply #'+ (mapcar #'* x (get-Ms b) (get-Bs b)))
+		 (apply #'* b)))
+		 
+;tests
+(to-rns 29)
+(to-rns 1 '(2 3 5))
+(to-rns 7 '(2 3 5))
+(from-rns '(1 2 4) '(2 3 5))
+(from-rns '(1 1 2) '(2 3 5))
