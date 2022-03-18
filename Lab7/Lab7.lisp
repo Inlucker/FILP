@@ -153,3 +153,110 @@
 (defun gs(lst)
 	(cond ((null lst) nil)
 		  (T (cons (* (car lst)(car lst)) (gs (cdr lst))))))
+		
+
+;Defend
+;Добавление строки матрицы s2 к s1 чтобы сократить n-ый элемент строки s2
+(defun add-s(s1 s2 n)
+	(mapcar #'- s2 (mapcar #'(lambda (x) (* x (/ (nth n s2) (nth n s1)))) s1)))
+	
+(setf mtrx '((1 -1 -5)(2 1 -7)))
+(add-s '(1 -1 -5) '(2 1 -7) 0)
+;Первые n элементов листа
+(defun first-n-els (lst n)
+	(cond ((zerop n) NIL)
+		  (T (cons (car lst) (first-n-els (cdr lst) (- n 1))))))
+;Последние n элементов листа
+;Make better (without last and reverse)?
+(defun last-n-els (lst n)
+	(cond ((zerop n) NIL)
+		  (T (append (last-n-els (butlast lst) (- n 1)) (last lst)))))
+
+(setf lst '(a b c d e))
+(first-n-els lst 1)
+(first-n-els lst 3)
+(last-n-els lst 1)
+(last-n-els lst 3)
+;Приведение матрицы к ступенчатому виду
+;change append?
+(defun step-mtrx-r(n m)
+	(cond ((= n (- (length m) 1)) m)
+		  (T (step-mtrx-r (+ n 1) (append (first-n-els m (+ n 1)) 
+										  (mapcar #'(lambda (x)
+														(add-s (nth n m) x n))
+												  (last-n-els m (- (length m) n 1))))))))
+
+(defun step-mtrx(m)
+	(step-mtrx-r 0 m))
+
+(setf mtrx '((3 2 -5 -1)(2 -1 3 13)(1 2 -1 9)))
+(step-mtrx-r 0 mtrx)
+(step-mtrx mtrx)
+;Решение "строки матрицы" s, где res - корни, полученные на предыдущих шагах, n номер шага, cur_n номер искомого X (начиная с 0)
+(defun solve-s(s res n &optional  (cur_n (- (length s) (length res) 1)))
+	;(print `(,s ,res ,n ,cur_n))
+	(/ (apply #'- (append (reverse (mapcar #'* (last-n-els s n) res)) (list 0))) (nth cur_n s)))
+
+(solve-s '(0 0 30/7 120/7) '(1) 1)
+(solve-s '(0 -7 19 41) '(4 1) 2)
+(solve-s '(3 2 -5 -1) '(5 4 1) 3)
+
+;Решение ступенчатой матрицы
+(defun solve-step-r(m i n res)
+	;(print `(,m ,i ,n ,res))
+	(cond ((zerop i) (butlast res))
+		  (T (solve-step-r (butlast m)
+						   (- i 1)
+						   (+ n 1)
+						   (cons (solve-s (car (last m)) res n) res)))))
+
+(defun solve-step(m)
+	(solve-step-r m (length m) 1 '(1)))
+	
+(setf mtrx '((3 2 -5 -1)(2 -1 3 13)(1 2 -1 9)))
+(solve-step (step-mtrx mtrx))
+	
+;Вывод решения
+(defun print-solvations-r(res n)
+	(cond ((null res) nil)
+		  (T (format T "X~A = ~A~%" n (car res))
+			 (print-solvations-r (cdr res) (+ n 1)))))
+
+(defun print-solvations(res)
+	(print-solvations-r res 1))
+
+(print-solvations (solve-step (step-mtrx mtrx)))
+
+(defun solve(SLAU)
+	(print-solvations (solve-step (step-mtrx SLAU))))
+	
+;TESTS
+(setf mtrx '((3 2 -5 -1)(2 -1 3 13)(1 2 -1 9)))
+(solve mtrx)
+;X1 = 3
+;X2 = 5
+;X3 = 4
+
+(setf mtrx2 '((2 -5 12 42)(-94 59 -32 -6)(35 -26 -12 40)))
+(solve mtrx2)
+;X1 = -21092/3177
+;X2 = -33578/3177
+;X3 = 644/3177
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
