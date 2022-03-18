@@ -184,3 +184,9 @@
 (to-rns 7 '(2 3 5))
 (from-rns '(1 2 4) '(2 3 5))
 (from-rns '(1 1 2) '(2 3 5))
+
+;Чтобы не считать (get-Ms b) 2 раза
+(defun from-RNS(x b)
+	(let ((Ms (get-Ms b)))
+		 (mod (apply #'+ (mapcar #'* x Ms (get-Bs b Ms)))
+			  (apply #'* b))))
