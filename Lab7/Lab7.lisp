@@ -167,10 +167,17 @@
 	(cond ((zerop n) NIL)
 		  (T (cons (car lst) (first-n-els (cdr lst) (- n 1))))))
 ;Последние n элементов листа
-;Make better (without last and reverse)?
 (defun last-n-els (lst n)
 	(cond ((zerop n) NIL)
 		  (T (append (last-n-els (butlast lst) (- n 1)) (last lst)))))
+
+;Make better (without last)? (DONE)
+(defun last-n-els-r (lst n)
+	(cond ((zerop n) lst)
+		  (T (last-n-els-r (cdr lst) (- n 1)))))
+
+(defun last-n-els (lst n)
+	(last-n-els-r lst (- (length lst) n)))
 
 (setf lst '(a b c d e))
 (first-n-els lst 1)
@@ -196,6 +203,8 @@
 (defun solve-s(s res n &optional  (cur_n (- (length s) (length res) 1)))
 	;(print `(,s ,res ,n ,cur_n))
 	(/ (apply #'- (append (reverse (mapcar #'* (last-n-els s n) res)) (list 0))) (nth cur_n s)))
+
+;Заменить append и reverse?
 
 (solve-s '(0 0 30/7 120/7) '(1) 1)
 (solve-s '(0 -7 19 41) '(4 1) 2)
