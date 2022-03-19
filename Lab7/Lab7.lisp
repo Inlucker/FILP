@@ -204,8 +204,6 @@
 	;(print `(,s ,res ,n ,cur_n))
 	(/ (apply #'- (append (reverse (mapcar #'* (last-n-els s n) res)) (list 0))) (nth cur_n s)))
 
-;Заменить append и reverse?
-
 (solve-s '(0 0 30/7 120/7) '(1) 1)
 (solve-s '(0 -7 19 41) '(4 1) 2)
 (solve-s '(3 2 -5 -1) '(5 4 1) 3)
@@ -224,48 +222,72 @@
 	
 (setf mtrx '((3 2 -5 -1)(2 -1 3 13)(1 2 -1 9)))
 (solve-step (step-mtrx mtrx))
+
+;Проверка ввода
+(defun check-SLAU-r(m len)
+	;(print `(,m ,len))
+	(cond ((null m) T)
+		  (T (and (= len (length (car m)))
+				  (check-SLAU-r (cdr m) len)))))
+
+(defun check-SLAU(m)
+	(check-SLAU-r m (+ (length m) 1)))
 	
+(setf mtrx '((3 2 -5 -1)(2 -1 3 13)(1 2 -1 9)))
+(setf mtrx2 '((2 -5 12 42)(-94 59 -32 -6)(35 -26 -12 40)))
+(setf mtrx3 '((3 2 -5 -1)(2 -1 3 13)))
+(check-SLAU mtrx)
+(check-SLAU mtrx2)
+(check-SLAU mtrx3)
+
+;Нахождение решения
+(defun solve(SLAU)
+	(solve-step (step-mtrx SLAU)))
+
+;solve с проверкой
+(defun solve(SLAU)
+	(and (check-SLAU SLAU)
+		 (solve-step (step-mtrx SLAU))))
+
 ;Вывод решения
 (defun print-solvations-r(res n)
-	(cond ((null res) nil)
+	(cond ((null res) NIL)
 		  (T (format T "X~A = ~A~%" n (car res))
 			 (print-solvations-r (cdr res) (+ n 1)))))
 
 (defun print-solvations(res)
 	(print-solvations-r res 1))
-
-(print-solvations (solve-step (step-mtrx mtrx)))
-
-(defun solve(SLAU)
-	(print-solvations (solve-step (step-mtrx SLAU))))
+	
+(defun solve-and-print(SLAU)
+	(print-solvations (solve SLAU)))
 	
 ;TESTS
 (setf mtrx '((3 2 -5 -1)(2 -1 3 13)(1 2 -1 9)))
 (solve mtrx)
+(solve-and-print mtrx)
 ;X1 = 3
 ;X2 = 5
 ;X3 = 4
 
 (setf mtrx2 '((2 -5 12 42)(-94 59 -32 -6)(35 -26 -12 40)))
 (solve mtrx2)
+(solve-and-print mtrx2)
 ;X1 = -21092/3177
 ;X2 = -33578/3177
 ;X3 = 644/3177
 
+(setf mtrx3 '((3 2 -5 -1)(2 -1 3 13)))
+(solve mtrx3)
+(solve-and-print mtrx3)
 
+;fiveam
+(ql:quickload "fiveam")
 
+(fiveam:test my-test
+	"My-test"
+	(fiveam:is (equal '(3 5 4) (solve '((3 2 -5 -1)(2 -1 3 13)(1 2 -1 9)))))
+	(fiveam:is (equal '(0 1/3 1/3) (solve '((1 1 2 1)(2 3 3 2)(4 4 5 3)))))
+	(fiveam:is (equal '(-21092/3177 -33578/3177 644/3177) (solve '((2 -5 12 42)(-94 59 -32 -6)(35 -26 -12 40)))))
+	(fiveam:is (null (solve '((3 2 -5 -1)(2 -1 3 13))))))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+(fiveam:run! 'my-test)

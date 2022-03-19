@@ -113,4 +113,15 @@
 (fiveam:run!)
 
 (solve-and-print 1 2 1)
-(solve-and-print 2 -3 1)+++
+(solve-and-print 2 -3 1)
+
+(fiveam:test my-test
+	"My-test"
+	(fiveam:is (equal '(КОМПЛЕКСНЫЕ КОРНИ = 3.0 -2.0 I И 3.0 2.0 I ) (solve 1 -6 13)))
+	(fiveam:is (equal '(Один корень = -1) (solve 1 2 1)))
+	(fiveam:is (equal '(ДВА КОРНЯ = -2.618034 И -0.381966) (solve 1 3 1)))
+	(fiveam:is (equal '(Один корень = -1/2) (solve 0 2 1)))
+	(fiveam:is (equal '(Нет корней) (solve 0 0 1)))
+	(fiveam:is (equal '(Любой корень) (solve 0 0 0))))
+	
+(fiveam:run! 'my-test)
