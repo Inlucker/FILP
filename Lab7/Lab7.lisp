@@ -291,3 +291,110 @@
 	(fiveam:is (null (solve '((3 2 -5 -1)(2 -1 3 13))))))
 
 (fiveam:run! 'my-test)
+
+;ARRAY
+;Реверс array (Не нужно)
+(defun arr-reverse (a)
+	(let* ((len (array-dimension a 0))(res (make-array `(,len))))
+		(loop for i from (- len 1) downto 0 do
+			(setf (aref res(- len i 1)) (aref a i)))
+		res))
+		
+(arr-reverse y)
+
+;Создание array
+(setf x (make-array '(3 4) 
+   :initial-contents '((3 2 -5 -1) (2 -1 3 13) (1 2 -1 9))))
+
+;Приведение к ступенчатому виду
+(defun step-array(a)
+	(dotimes (i (- (array-dimension a 0) 1))
+		(loop for j from (+ i 1) to (- (array-dimension a 0) 1) do
+			(let ((mn (/ (aref a j i) (aref a i i))))
+				(dotimes (k (array-dimension a 1))
+					(setf (aref a j k) (- (aref a j k) (* (aref a i k) mn)))))))
+	a)
+
+(step-array x)
+
+;Получить строку двумерного массива
+(defun get-row (a r)
+	(let ((res (make-array `(,(array-dimension a 1)))))
+		(dotimes (i (array-dimension a 1))
+			(setf (aref res i) (aref a r i)))
+		res))
+		
+(get-row x 1)
+
+;Решить строку массива
+(defun solve-row(a n res)
+	(let* ((len (- (length a) 1)) (x (aref a len)))
+		(loop for i from (+ n 1) to (- len 1) do
+			(setf x (- x (* (aref a i) (nth (- i n 1) res)))))
+		(setf x (/ x (aref a n)))))
+	
+(solve-row (get-row x 2) 2 '())
+(solve-row (get-row x 1) 1 '(4))
+(solve-row (get-row x 0) 0 '(5 4))
+
+;Решить ступенчатый двумерный array
+(defun solve-step-array (a)
+	(let ((res '()))
+		 (loop for i from (- (array-dimension a 0) 1) downto 0 do
+			(setf res (cons (solve-row (get-row a i) i res) res)))
+		 res))
+
+(solve-step-array x)
+
+;Ввыод
+(defun print-solvations-arr(res)
+	(dotimes (i (length res))
+		(format T "X~A = ~A~%" (+ i 1) (nth i res))))
+		
+;решение
+(defun solve-arr(a)
+	(cond ((= (array-dimension a 0) (- (array-dimension a 1) 1))
+		   (solve-step-array (step-array a)))
+		   (T NIL)))
+	
+(solve-arr x)
+	
+(defun solve-and-print-arr(a)
+	(print-solvations-arr(solve-arr a)))
+	
+(setf x (make-array '(3 4) :initial-contents '((3 2 -5 -1) (2 -1 3 13) (1 2 -1 9))))
+(solve-and-print-arr x)
+;X1 = 3
+;X2 = 5
+;X3 = 4
+
+(setf y (make-array '(3 4) :initial-contents '((2 -5 12 42)(-94 59 -32 -6)(35 -26 -12 40))))
+(solve-and-print-arr y)
+;X1 = -21092/3177
+;X2 = -33578/3177
+;X3 = 644/3177
+
+(setf z (make-array '(3 4) :initial-contents '((1 1 2 1)(2 3 3 2)(4 4 5 3))))
+(solve-and-print-arr z)
+;X1 = 0
+;X2 = 1/3
+;X3 = 1/3
+
+;fiveam
+(ql:quickload "fiveam")
+
+(fiveam:test my-test-arr
+	"My-test-arr"
+	(fiveam:is (equal '(3 5 4) (solve-arr (make-array '(3 4) :initial-contents '((3 2 -5 -1) (2 -1 3 13) (1 2 -1 9))))))
+	(fiveam:is (equal '(0 1/3 1/3) (solve-arr (make-array '(3 4) :initial-contents '((1 1 2 1)(2 3 3 2)(4 4 5 3))))))
+	(fiveam:is (equal '(-21092/3177 -33578/3177 644/3177) (solve-arr (make-array '(3 4) :initial-contents '((2 -5 12 42)(-94 59 -32 -6)(35 -26 -12 40))))))
+	(fiveam:is (null (solve-arr (make-array '(2 4) :initial-contents '((3 2 -5 -1)(2 -1 3 13)))))))
+
+(fiveam:run! 'my-test-arr)
+
+(setf arr (make-array '(6) :initial-contents '(1 2 3 4 5 6)))
+(map 'vector #'+ arr arr)
+
+(setf lst '(1 2 3 4 5 6))
+(map 'vector #'+ lst lst)
+(map 'vector #'+ lst arr)
