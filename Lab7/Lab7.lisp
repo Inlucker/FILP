@@ -392,6 +392,7 @@
 
 (fiveam:run! 'my-test-arr)
 
+;эксперементы
 (setf arr (make-array '(6) :initial-contents '(1 2 3 4 5 6)))
 (map 'vector #'+ arr arr)
 
