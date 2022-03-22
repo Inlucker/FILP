@@ -283,16 +283,143 @@
 ;fiveam
 (ql:quickload "fiveam")
 
-(fiveam:test my-test
-	"My-test"
+(fiveam:test Test-gauss
+	"Test-gauss"
 	(fiveam:is (equal '(3 5 4) (solve '((3 2 -5 -1)(2 -1 3 13)(1 2 -1 9)))))
 	(fiveam:is (equal '(0 1/3 1/3) (solve '((1 1 2 1)(2 3 3 2)(4 4 5 3)))))
 	(fiveam:is (equal '(-21092/3177 -33578/3177 644/3177) (solve '((2 -5 12 42)(-94 59 -32 -6)(35 -26 -12 40)))))
 	(fiveam:is (null (solve '((3 2 -5 -1)(2 -1 3 13))))))
 
-(fiveam:run! 'my-test)
+(fiveam:run! 'Test-gauss)
 
-;ARRAY
+
+
+
+
+;ARRAY без циклов и setf
+(defun make-2d-arr(lst)
+	(map 'vector #'(lambda (x) (apply #'vector x)) lst))
+	
+(setf arr (make-2d-arr mtrx))
+(setf arr2 (make-2d-arr mtrx2))
+(setf arr3 (make-2d-arr mtrx3))
+	
+(defun add-s-arr(s1 s2 n)
+	(map 'vector #'- s2
+		(map 'vector #'(lambda (x)
+			(* x (/ (aref s2 n) (aref s1 n)))) s1)))
+
+(add-s-arr #(1 -1 -5) #(2 1 -7) 0)
+
+(defun forward(n &optional (res NIL))
+	(cond ((zerop n) res)
+		  (T (forward (- n 1) (cons (- n 1) res)))))
+		  
+(defun first-n-els-arr (a n)
+	(map 'vector #'(lambda (x) (aref a x)) (forward n)))
+
+(defun last-n-els-arr (a n)
+	(map 'vector #'(lambda (x) (aref a x))
+		 (mapcar #'(lambda (x) (+ (- (length a) n) x)) (forward n))))
+	
+(setf ar #(a b c d e))
+(first-n-els-arr ar 1)
+(first-n-els-arr ar 3)
+(last-n-els-arr ar 1)
+(last-n-els-arr ar 3)
+
+(defun step-arr(a &optional (n 0) (len (length a)))
+	(cond ((= n (- len 1)) a)
+		  (T (step-arr (concatenate 'vector (first-n-els-arr a (+ n 1))
+											 (map 'vector #'(lambda (x)
+												(add-s-arr (aref a n) x n))
+												(last-n-els-arr a (- len n 1)))) (+ n 1) len))))
+												
+(step-arr arr)
+
+(defun solve-s-arr (s res n &optional  (cur_n (- (length s) (length res) 1)))
+	(/ (apply #'- (append (reverse (map 'list #'* (last-n-els-arr s n) res)) (list 0))) (aref s cur_n)))
+
+(solve-s-arr #(0 0 30/7 120/7) '(1) 1)
+(solve-s-arr #(0 -7 19 41) '(4 1) 2)
+(solve-s-arr #(3 2 -5 -1) '(5 4 1) 3)
+
+(defun butlast-arr(a)
+	(first-n-els-arr a (- (length a) 1)))
+
+(defun solve-step-arr(a &optional (i (length a)) (n 1) (res '(1)))
+	;(print `(,a ,i ,n ,res))
+	(cond ((zerop i)(butlast res))
+		  (T (solve-step-arr (butlast-arr a)
+						 (- i 1)
+						 (+ n 1)
+						 (cons (solve-s-arr (aref (last-n-els-arr a 1) 0) res n) res)))))
+						 
+(solve-step-arr (step-arr arr))
+
+(defun check-SLAU-arr(a &optional (len (+ (length a) 1)))
+	(and (> len 1)
+		 (every #'(lambda (x)
+			(not (null x)))
+				(map 'list #'(lambda (x)
+					(= (length x) len)) a))))
+	
+(check-SLAU-arr arr)
+(check-SLAU-arr arr2)
+(check-SLAU-arr arr3)
+(check-SLAU-arr #())
+
+(defun solve-arr(SLAU)
+	(and (check-SLAU-arr SLAU)
+		 (solve-step-arr (step-arr SLAU))))
+		 
+(solve-arr arr)
+(solve-arr arr2)
+(solve-arr arr3)
+(solve-arr #())
+
+(defun print-solvations-r(res n)
+	(cond ((null res) NIL)
+		  (T (format T "X~A = ~A~%" n (car res))
+			 (print-solvations-r (cdr res) (+ n 1)))))
+
+(defun print-solvations(res)
+	(print-solvations-r res 1))
+
+(defun solve-and-print-arr(SLAU)
+	(print-solvations (solve-arr SLAU)))
+	
+;TESTS
+(solve-and-print-arr arr)
+;X1 = 3
+;X2 = 5
+;X3 = 4
+
+(solve-and-print-arr arr2)
+;X1 = -21092/3177
+;X2 = -33578/3177
+;X3 = 644/3177
+
+(solve-and-print-arr arr3)
+;NIL
+
+;fiveAM
+(ql:quickload "fiveam")
+
+(fiveam:test Test-gauss-arr
+	"Test-gauss-arr"
+	(fiveam:is (equal '(3 5 4) (solve-arr #(#(3 2 -5 -1)#(2 -1 3 13)#(1 2 -1 9)))))
+	(fiveam:is (equal '(0 1/3 1/3) (solve-arr #(#(1 1 2 1)#(2 3 3 2)#(4 4 5 3)))))
+	(fiveam:is (equal '(-21092/3177 -33578/3177 644/3177) (solve-arr #(#(2 -5 12 42)#(-94 59 -32 -6)#(35 -26 -12 40)))))
+	(fiveam:is (null (solve-arr #(#(3 2 -5 -1)#(2 -1 3 13))))))
+
+(fiveam:run! 'Test-gauss-arr)
+
+
+
+
+
+;ARRAY через циклы :(
 ;Реверс array (Не нужно)
 (defun arr-reverse (a)
 	(let* ((len (array-dimension a 0))(res (make-array `(,len))))
