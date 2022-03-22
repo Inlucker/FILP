@@ -173,6 +173,7 @@
 ;Тест mapcar и apply
 (setf m '((1 2 3)(4 5 6)(7 8 9)))
 (apply #'mapcar #'list m)
+(apply #'map 'list #'list m)
 ; = ((1 4 7) (2 5 8) (3 6 9))
 (apply #'mapcar #'+ m)
 
@@ -260,6 +261,7 @@
 
 (get-min lst 0 0)
 
+;ВЗАИМНАЯ РЕКУРСИЯ :D
 (defun det-r(m &optional (cur_n 0) (len (length m)))
 	(cond ((= cur_n len) NIL)
 		  (T (cons (* (nth cur_n (car m)) (det (get-min m 0 cur_n))) (det-r m (+ cur_n 1) len)))))
@@ -383,6 +385,120 @@
 
 
 ;inverse-mtrx with array
+(defun make-2d-arr(lst)
+	(map 'vector #'(lambda (x) (apply #'vector x)) lst))
+	
+(setf arr (make-2d-arr lst))
+(setf arr1 (make-2d-arr lst1))
+(setf arr2 (make-2d-arr lst2))
+(setf arr3 (make-2d-arr lst3))
+(setf arr5 (make-2d-arr lst5))
+	
+(defun forward(n &optional (res NIL))
+	(cond ((zerop n) res)
+		  (T (forward (- n 1) (cons (- n 1) res)))))	 
 
-(defun inv-arr(a)
-	)
+(defun butn (lst n &optional (cur_n 0))
+	(cond ((null lst) NIL)
+		  ((= cur_n n) (butn (cdr lst) n (+ cur_n 1)))
+		  (T (cons (car lst) (butn (cdr lst) n (+ cur_n 1))))))		  
+
+(defun butn-arr(arr n &optional (len (length arr)))
+	(map 'vector #'(lambda (x) (aref arr x)) (butn (forward len) n)))
+	
+(butn-arr arr 1)
+
+(defun get-min-arr(a i j)
+	(map 'vector #'(lambda (x) (butn-arr x j)) (butn-arr a i)))
+
+(get-min-arr arr 0 0)
+
+(defun ref (a i j)
+	(aref (aref a i) j))
+
+(defun det-arr-r(a &optional (len (length a)))
+	(map 'vector #'(lambda (x y) (* x (det-arr y))) (aref a 0) (map 'vector #'(lambda (z) (get-min-arr a 0 z)) (forward len))))
+
+(aref arr 0)
+(map 'vector #'(lambda (z) (get-min-arr arr 0 z)) (forward (length arr)))
+
+(det-arr-r arr)
+
+(defun dop-arr (a &optional (n 0))
+	(map 'list #'(lambda (x y) (if (evenp (+ y n)) x (- x))) a (forward (length a))))
+
+(dop-arr (aref arr 0))
+
+(defun det-arr(a)
+	(let ((len (length a)))
+		 (cond ((zerop len) NIL)
+			   ((= len 1) (ref a 0 0))
+			   ((= len 2) (- (* (ref a 0 0) (ref a 1 1)) (* (ref a 0 1) (ref a 1 0))))
+			   (T (apply #'+ (dop-arr (det-arr-r a)))))))
+
+(det-arr arr1) ;1
+(det-arr arr2) ;-2
+(det-arr arr) ;-1
+(det-arr arr3) ;0
+(det-arr arr5) ;-80
+
+(defun nels (n el &optional (res NIL))
+	(cond ((zerop n) res)
+		  (T (nels (- n 1) el (cons el res)))))
+		  
+(nels 3 24)
+
+(defun get-is(n)
+	(mapcar #'(lambda (x) (nels n x)) (forward n)))
+	
+(defun get-js(n)
+	(mapcar #'(lambda (x) (forward n)) (forward n)))
+
+(get-is 3)
+(get-js 4)
+	
+(apply #'map 'list #'list m)
+
+(defun min-mtrx-arr(a &optional (len (length a)))
+	(map 'vector #'(lambda (x y)
+		(map 'vector #'(lambda (n)
+			(det-arr (get-min-arr a (nth n x) (nth n y))))
+			(forward (length a))))
+		(get-is len) (get-js len)))
+	
+	;(map 'vector #'(lambda (x y) (det-arr (get-min-arr a x y))) (get-is len) (get-js len))		   ;v1
+	;(apply #'map 'vector #'(lambda (x y) (det-arr (get-min-arr a x y))) (get-is len) (get-js len)) ;v2
+	;(map 'vector #'(lambda (x y)(map 'vector #'(lambda (n) (det-arr (get-min-arr a (nth n x) (nth n y)))) (forward (length arr)))) (get-is len) (get-js len)) ;v2
+	
+(min-mtrx-arr arr)
+
+(defun alg-dop-arr(a)
+	(map 'vector #'(lambda (x) (apply #'vector (dop-arr x))) a))
+	
+(alg-dop-arr (min-mtrx-arr arr))
+
+;STOPED HERE!!!
+(defun trans-arr (a)
+	(apply #'mapcar #'vector a))
+
+(map 'vector #'(lambda (x) x) arr)	
+(trans-arr (alg-dop-arr (min-mtrx-arr arr)))
+	
+(defun trans (m)
+	(apply #'mapcar #'list m))
+	
+(trans (alg-dop (min-mtrx lst)))
+
+(defun mtrx-mul(k m)
+	(cond ((null m) NIL)
+		  (T (cons (mapcar #'(lambda (x) (* k x)) (car m)) (mtrx-mul k (cdr m))))))
+		  
+(mtrx-mul -1 (trans (alg-dop (min-mtrx lst))))
+
+(defun inverse-mtrx (m)
+	(cond ((zerop (det m)) NIL)
+		  (T (mtrx-mul (/ 1 (det m)) (trans (alg-dop (min-mtrx m)))))))
+	
+(inverse-mtrx lst)
+(inverse-mtrx lst2)
+(inverse-mtrx lst3)
