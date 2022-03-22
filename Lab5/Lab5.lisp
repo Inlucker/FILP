@@ -473,32 +473,35 @@
 (min-mtrx-arr arr)
 
 (defun alg-dop-arr(a)
-	(map 'vector #'(lambda (x) (apply #'vector (dop-arr x))) a))
+	(map 'vector #'(lambda (x n) (apply #'vector (dop-arr x n))) a (forward (length a))))
 	
 (alg-dop-arr (min-mtrx-arr arr))
 
 ;STOPED HERE!!!
-(defun trans-arr (a)
-	(apply #'mapcar #'vector a))
+(defun trans-arr (a &optional (len (length a)))
+	(map 'vector #'(lambda (x)
+		(map 'vector #'(lambda (i j)
+			(ref a i j))
+			(forward len) (nels len x)))
+		(forward len)))
 
-(map 'vector #'(lambda (x) x) arr)	
 (trans-arr (alg-dop-arr (min-mtrx-arr arr)))
-	
-(defun trans (m)
-	(apply #'mapcar #'list m))
-	
-(trans (alg-dop (min-mtrx lst)))
 
-(defun mtrx-mul(k m)
-	(cond ((null m) NIL)
-		  (T (cons (mapcar #'(lambda (x) (* k x)) (car m)) (mtrx-mul k (cdr m))))))
+(defun get-transp-mtrx (mtrx)
+	(cond ((null mtrx) Nil)
+		  (T (apply #'map 'vector #'vector (map 'list #'(lambda (x) x) mtrx)))))
+	
+(defun mtrx-mul-arr(k a)
+	(map 'vector #'(lambda (x)
+		(map 'vector #'(lambda (y)
+			(* k y)) x)) a))
+		
+(mtrx-mul-arr -1 (trans-arr (alg-dop-arr (min-mtrx-arr arr))))
+
+(defun inverse-mtrx-arr (a)
+	(cond ((zerop (det-arr a)) NIL)
+		  (T (mtrx-mul-arr (/ 1 (det-arr a)) (trans-arr (alg-dop-arr (min-mtrx-arr a)))))))
 		  
-(mtrx-mul -1 (trans (alg-dop (min-mtrx lst))))
-
-(defun inverse-mtrx (m)
-	(cond ((zerop (det m)) NIL)
-		  (T (mtrx-mul (/ 1 (det m)) (trans (alg-dop (min-mtrx m)))))))
-	
-(inverse-mtrx lst)
-(inverse-mtrx lst2)
-(inverse-mtrx lst3)
+(inverse-mtrx-arr arr)
+(inverse-mtrx-arr arr2)
+(inverse-mtrx-arr arr3)
