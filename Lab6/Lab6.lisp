@@ -152,7 +152,7 @@
 	
 (defun to-RNS(n &optional (b (basis n)))
 	(format t "Число ~A можно представить в виде кортежа ~A в СОК с базисом ~A"
-					n (mapcar #'(lambda (x) (mod n x)) b) b))
+					n (RNS n b) b))
 
 ;Mi
 (defun get-Ms-r(bas M)
@@ -190,3 +190,16 @@
 	(let ((Ms (get-Ms b)))
 		 (mod (apply #'+ (mapcar #'* x Ms (get-Bs b Ms)))
 			  (apply #'* b))))
+			  
+;fiveam
+(ql:quickload "fiveam")
+
+(fiveam:test Test-RNS
+	"Test-RNS"
+	(fiveam:is (equal (rns 29) '(1 2 4)))
+	(fiveam:is (equal (rns 1 '(2 3 5)) '(1 1 1)))
+	(fiveam:is (equal (rns 7 '(2 3 5)) '(1 1 2)))
+	(fiveam:is (eq (from-rns '(1 2 4) '(2 3 5)) 29))
+	(fiveam:is (eq (from-rns '(1 1 2) '(2 3 5)) 7)))
+
+(fiveam:run! 'Test-RNS)

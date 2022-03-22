@@ -354,7 +354,7 @@
 (ql:quickload "fiveam")
 
 (fiveam:test Test-inverse-mtrx
-	"Test-inverse-mtrx-arr"
+	"Test-inverse-mtrx"
 	(fiveam:is (equal '((1 -1 1) (-38 41 -34) (27 -29 24)) (inverse-mtrx '((2 5 7) (6 3 4) (5 -2 -3)))))
 	(fiveam:is (equal '((-2 1) (3/2 -1/2)) (inverse-mtrx '((1 2) (3 4)))))
 	(fiveam:is (null (inverse-mtrx '((1 2 3) (4 5 6)(7 8 9))))))
