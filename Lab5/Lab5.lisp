@@ -350,6 +350,17 @@
 (inverse-mtrx lst2)
 (inverse-mtrx lst3)
 
+;fiveam
+(ql:quickload "fiveam")
+
+(fiveam:test Test-inverse-mtrx
+	"Test-inverse-mtrx-arr"
+	(fiveam:is (equal '((1 -1 1) (-38 41 -34) (27 -29 24)) (inverse-mtrx '((2 5 7) (6 3 4) (5 -2 -3)))))
+	(fiveam:is (equal '((-2 1) (3/2 -1/2)) (inverse-mtrx '((1 2) (3 4)))))
+	(fiveam:is (null (inverse-mtrx '((1 2 3) (4 5 6)(7 8 9))))))
+
+(fiveam:run! 'Test-inverse-mtrx)
+
 
 
 
@@ -419,10 +430,6 @@
 (defun det-arr-r(a &optional (len (length a)))
 	(map 'vector #'(lambda (x y) (* x (det-arr y))) (aref a 0) (map 'vector #'(lambda (z) (get-min-arr a 0 z)) (forward len))))
 
-(aref arr 0)
-(map 'vector #'(lambda (z) (get-min-arr arr 0 z)) (forward (length arr)))
-
-(det-arr-r arr)
 
 (defun dop-arr (a &optional (n 0))
 	(map 'list #'(lambda (x y) (if (evenp (+ y n)) x (- x))) a (forward (length a))))
@@ -435,6 +442,8 @@
 			   ((= len 1) (ref a 0 0))
 			   ((= len 2) (- (* (ref a 0 0) (ref a 1 1)) (* (ref a 0 1) (ref a 1 0))))
 			   (T (apply #'+ (dop-arr (det-arr-r a)))))))
+
+(det-arr-r arr)
 
 (det-arr arr1) ;1
 (det-arr arr2) ;-2
@@ -456,8 +465,6 @@
 
 (get-is 3)
 (get-js 4)
-	
-(apply #'map 'list #'list m)
 
 (defun min-mtrx-arr(a &optional (len (length a)))
 	(map 'vector #'(lambda (x y)
@@ -477,7 +484,6 @@
 	
 (alg-dop-arr (min-mtrx-arr arr))
 
-;STOPED HERE!!!
 (defun trans-arr (a &optional (len (length a)))
 	(map 'vector #'(lambda (x)
 		(map 'vector #'(lambda (i j)
@@ -505,3 +511,14 @@
 (inverse-mtrx-arr arr)
 (inverse-mtrx-arr arr2)
 (inverse-mtrx-arr arr3)
+
+;fiveam
+(ql:quickload "fiveam")
+
+(fiveam:test Test-inverse-mtrx-arr
+	"Test-inverse-mtrx-arr"
+	(fiveam:is (equalp (make-2d-arr '((1 -1 1) (-38 41 -34) (27 -29 24))) (inverse-mtrx-arr (make-2d-arr '((2 5 7) (6 3 4) (5 -2 -3))))))
+	(fiveam:is (equalp (make-2d-arr '((-2 1) (3/2 -1/2))) (inverse-mtrx-arr (make-2d-arr '((1 2) (3 4))))))
+	(fiveam:is (null (inverse-mtrx-arr (make-2d-arr '((1 2 3) (4 5 6)(7 8 9)))))))
+
+(fiveam:run! 'Test-inverse-mtrx-arr)
