@@ -212,22 +212,14 @@
 	(cond ((zerop n) lst)
 		  (T (butfirst (cdr lst) (- n 1)))))
 
-;defend Обратная матрица
-(setf lst1 '((1)))
-(setf lst2 '((1 2)(3 4)))
-(setf lst3 '((1 2 3)(4 5 6)(7 8 9)))
-(setf lst '((2 5 7)(6 3 4)(5 -2 -3)))
-
-(defun forward(n &optional (res NIL))
+(defun myget-r(m i n res)
 	(cond ((zerop n) res)
-		  (T (forward (- n 1) (cons (- n 1) res)))))	  
-
-(defun backward(n &optional (res NIL))
-	(cond ((zerop n) res)
-		  (T (cons (- n 1) (backward (- n 1) res)))))
-		  
-(forward 5)
-(backward 5)
+		  (T (myget-r m (swap-to-right i) (- n 1) (cons (mapcar #'nth i m) res)))))
+	
+(defun myget(m i)
+	(myget-r m i (length m) NIL))
+	
+(myget lst '(0 1 2))
 
 ;better 6
 (defun mybutlast (lst)
@@ -246,23 +238,17 @@
 (mylast lstt)
 (swap-to-right lstt)
 
-(defun myget-r(m i n res)
-	(cond ((zerop n) res)
-		  (T (myget-r m (swap-to-right i) (- n 1) (cons (mapcar #'nth i m) res)))))
-	
-(defun myget(m i)
-	(myget-r m i (length m) NIL))
-	
-(myget lst '(0 1 2))
 
-(defun det(m)
-	(let ((len (length m)))
-		 (cond ((= len 1) (caar m))
-			   ((= len 2) (- (* (caar m) (cadadr m)) (* (cadar m) (caadr m))))
-			   (T (- (apply #'+ (mapcar #'(lambda (x) (apply #'* x)) (myget m (forward len))))
-					 (apply #'+ (mapcar #'(lambda (x) (apply #'* x)) (myget m (backward len)))))))))
-		 
-(det lst)
+
+
+
+
+;defend Обратная матрица
+(setf lst1 '((1)))
+(setf lst2 '((1 2)(3 4)))
+(setf lst3 '((1 2 3)(4 5 6)(7 8 9)))
+(setf lst '((2 5 7)(6 3 4)(5 -2 -3)))
+(setf lst5 '((-1 -1 2 1 1)(0 -3 2 2 0)(2 1 3 0 0)(-2 3 0 -2 1)(-3 -3 3 -3 2)))
 
 (defun butn (lst n &optional (cur_n 0))
 	(cond ((null lst) NIL)
@@ -274,18 +260,47 @@
 
 (get-min lst 0 0)
 
+(defun det-r(m &optional (cur_n 0) (len (length m)))
+	(cond ((= cur_n len) NIL)
+		  (T (cons (* (nth cur_n (car m)) (det (get-min m 0 cur_n))) (det-r m (+ cur_n 1) len)))))
+
+
+(defun dop (lst &optional (n 0))
+	(cond ((null lst) NIL)
+		  ((evenp n)(cons (car lst) (dop (cdr lst) (+ n 1))))
+		  (T (cons (- (car lst)) (dop (cdr lst) (+ n 1))))))
+
+(defun det(m)
+	(let ((len (length m)))
+		 (cond ((= len 1) (caar m))
+			   ((= len 2) (- (* (caar m) (cadadr m)) (* (cadar m) (caadr m))))
+			   (T (apply #'+ (dop (det-r m)))))))
+		 
+(det-r lst)
+(apply #'+ (dop (det-r lst)))
+
+(det lst) ;-1
+(det lst1) ;1
+(det lst2) ;-2
+(det lst3) ;0
+(det lst5) ;-80
+
 (defun nels (n el &optional (res NIL))
 	(cond ((zerop n) res)
 		  (T (nels (- n 1) el (cons el res)))))
 		  
 (nels 3 24)
 
-(defun get-is(n)
-	(apply #'append (mapcar #'(lambda (x) (nels n x)) (forward n))))
-	
-(defun get-js(n)
-	(apply #'append  (mapcar #'(lambda (x) (forward n)) (forward n))))
-	
+(defun forward(n &optional (res NIL))
+	(cond ((zerop n) res)
+		  (T (forward (- n 1) (cons (- n 1) res)))))	  
+
+(defun backward(n &optional (res NIL))
+	(cond ((zerop n) res)
+		  (T (cons (- n 1) (backward (- n 1) res)))))
+		  
+(forward 5)
+(backward 5)
 
 (defun get-is(n)
 	(mapcar #'(lambda (x) (nels n x)) (forward n)))
@@ -295,12 +310,6 @@
 
 (get-is 3)
 (get-js 4)
-
-(defun min-mtrx(m)
-	(let ((len (length m)))
-		 (mapcar #'det (mapcar #'(lambda (i j) (get-min m i j)) (get-is len) (get-js len)))))
-
-(min-mtrx lst)
 
 (defun min-mtrx-r(m is js)
 	 (cond ((or (null is) (null js))  NIL)
@@ -313,11 +322,6 @@
 		 
 (min-mtrx-r lst (get-is 3) (get-js 3))
 (min-mtrx lst)
-
-(defun dop (lst n)
-	(cond ((null lst) NIL)
-		  ((evenp n)(cons (car lst) (dop (cdr lst) (+ n 1))))
-		  (T (cons (- (car lst)) (dop (cdr lst) (+ n 1))))))
 
 (defun alg-dop(m &optional (n 0))
 	(cond ((null m) NIL)
@@ -343,3 +347,42 @@
 (inverse-mtrx lst)
 (inverse-mtrx lst2)
 (inverse-mtrx lst3)
+
+
+
+
+;Не нужно
+(defun get-row(a n &optional (j 0) (len (array-dimension a 0)))
+	(cond ((= j len) NIL)
+		  (T (cons (aref a n j) (get-row a n (+ j 1) len)))))
+		  
+(setf x (make-array '(3 3) 
+   :initial-contents '((2 5 7)(6 3 4)(5 -2 -3))))
+   
+(setf y (make-array '(6) :initial-contents '(1 2 3 4 5 6)))
+
+(map 'vector #'(lambda (x i) (* x i)) y '(0 1 2))
+
+(defun make-2d-array(lst n)
+	(make-array `(,n ,n)  :initial-contents lst))
+	
+(setf arr1 (make-2d-array '((1)) 1))
+(setf arr2 (make-2d-array '((1 2)(3 4)) 2))
+(setf arr (make-2d-array '((2 5 7)(6 3 4)(5 -2 -3)) 3))
+
+(defun get-row(a n)
+	(map 'list #'(lambda (x) (aref a n x)) (forward (array-dimension a 0))))
+		 
+(get-row arr 0)
+(get-row arr 1)
+(get-row arr 2)
+
+
+
+
+
+
+;inverse-mtrx with array
+
+(defun inv-arr(a)
+	)
