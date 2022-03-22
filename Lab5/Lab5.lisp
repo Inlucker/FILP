@@ -203,7 +203,10 @@
 (mapcar #'f3 '(1 2 3) '(3 4 5) '(6 7 8))
 
 ;defend Обратная матрица
+(setf lst1 '((1)))
+(setf lst2 '((1 2)(3 4)))
 (setf lst '((1 2 3)(4 5 6)(7 8 9)))
+(setf lst3 '((2 5 7)(6 3 4)(5 -2 -3)))
 
 (defun forward(n &optional (res NIL))
 	(cond ((zerop n) res)
@@ -252,8 +255,14 @@
 
 (defun det(m)
 	(let ((len (length m)))
-		 (- (apply #'+ (mapcar #'(lambda (x) (apply #'* x)) (myget m (forward len))))
-			(apply #'+ (mapcar #'(lambda (x) (apply #'* x)) (myget m (backward len)))))))
+		 (cond ((= len 1) (caar m))
+			   ((= len 2) (print m)(- (* (caar m) (cadadr m)) (* (cadar m) (caadr m))))
+			   (T (- (apply #'+ (mapcar #'(lambda (x) (apply #'* x)) (myget m (forward len))))
+					 (apply #'+ (mapcar #'(lambda (x) (apply #'* x)) (myget m (backward len)))))))))
 		 
 (det lst)
 
+(defun myget2(m))
+
+(defun minor(m)
+	)
