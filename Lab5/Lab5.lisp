@@ -202,11 +202,21 @@
 (mapcar #'f2 '(1 2 3) '(3 4 5))
 (mapcar #'f3 '(1 2 3) '(3 4 5) '(6 7 8))
 
+;Не нужно
+(defun swap-to-right (lst &optional (res NIL))
+	(print lst)
+	(cond ((null (cdr lst)) res)
+		  (T (cons (car lst) (swap-to-right (cdr lst) res)))))
+
+(defun butfirst (lst &optional (n 1))
+	(cond ((zerop n) lst)
+		  (T (butfirst (cdr lst) (- n 1)))))
+
 ;defend Обратная матрица
 (setf lst1 '((1)))
 (setf lst2 '((1 2)(3 4)))
-(setf lst '((1 2 3)(4 5 6)(7 8 9)))
-(setf lst3 '((2 5 7)(6 3 4)(5 -2 -3)))
+(setf lst3 '((1 2 3)(4 5 6)(7 8 9)))
+(setf lst '((2 5 7)(6 3 4)(5 -2 -3)))
 
 (defun forward(n &optional (res NIL))
 	(cond ((zerop n) res)
@@ -219,30 +229,22 @@
 (forward 5)
 (backward 5)
 
-;6
-(defun move-left(lst tmp)
-	(cond ((null (cdr lst)) (setf (car lst) tmp))
-		  (T (setf (car lst) (second lst))
-			  (move-left (cdr lst) tmp))))
+;better 6
+(defun mybutlast (lst)
+	(cond ((null (cdr lst)) nil)
+		  (T (cons (car lst) (mybutlast (cdr lst))))))
 
-(defun swap-to-left(lst)
-	(cond ((or (null lst) (null (cdr lst))) lst)
-		  (T (let ((tmp (first lst)))
-				  (move-left lst tmp)
-				  lst))))
-
-(defun move-right(lst tmp2)
-	(cond ((null lst) nil)
-		  (T (let ((tmp3 (car lst)))
-				  (setf (car lst) tmp2)
-				  (move-right (cdr lst) tmp3)))))
+(defun mylast (lst)
+	(cond ((null (cdr lst)) (car lst))
+		  (T (mylast (cdr lst)))))
 
 (defun swap-to-right(lst)
-	(cond ((or (null lst) (null (cdr lst))) lst)
-		  (T (let ((tmp (car (last lst))))
-				  (move-right lst (car lst))
-				  (setf (car lst) tmp)
-				  lst))))
+	(cons (mylast lst) (mybutlast lst)))
+	
+(setf lstt '(a b c d))
+(mybutlast lstt)
+(mylast lstt)
+(swap-to-right lstt)
 
 (defun myget-r(m i n res)
 	(cond ((zerop n) res)
@@ -256,13 +258,88 @@
 (defun det(m)
 	(let ((len (length m)))
 		 (cond ((= len 1) (caar m))
-			   ((= len 2) (print m)(- (* (caar m) (cadadr m)) (* (cadar m) (caadr m))))
+			   ((= len 2) (- (* (caar m) (cadadr m)) (* (cadar m) (caadr m))))
 			   (T (- (apply #'+ (mapcar #'(lambda (x) (apply #'* x)) (myget m (forward len))))
 					 (apply #'+ (mapcar #'(lambda (x) (apply #'* x)) (myget m (backward len)))))))))
 		 
 (det lst)
 
-(defun myget2(m))
+(defun butn (lst n &optional (cur_n 0))
+	(cond ((null lst) NIL)
+		  ((= cur_n n) (butn (cdr lst) n (+ cur_n 1)))
+		  (T (cons (car lst) (butn (cdr lst) n (+ cur_n 1))))))
 
-(defun minor(m)
-	)
+(defun get-min(m i j)
+	(mapcar #'(lambda (x) (butn x j)) (butn m i)))
+
+(get-min lst 0 0)
+
+(defun nels (n el &optional (res NIL))
+	(cond ((zerop n) res)
+		  (T (nels (- n 1) el (cons el res)))))
+		  
+(nels 3 24)
+
+(defun get-is(n)
+	(apply #'append (mapcar #'(lambda (x) (nels n x)) (forward n))))
+	
+(defun get-js(n)
+	(apply #'append  (mapcar #'(lambda (x) (forward n)) (forward n))))
+	
+
+(defun get-is(n)
+	(mapcar #'(lambda (x) (nels n x)) (forward n)))
+	
+(defun get-js(n)
+	(mapcar #'(lambda (x) (forward n)) (forward n)))
+
+(get-is 3)
+(get-js 4)
+
+(defun min-mtrx(m)
+	(let ((len (length m)))
+		 (mapcar #'det (mapcar #'(lambda (i j) (get-min m i j)) (get-is len) (get-js len)))))
+
+(min-mtrx lst)
+
+(defun min-mtrx-r(m is js)
+	 (cond ((or (null is) (null js))  NIL)
+		   (T (cons (mapcar #'det (mapcar #'(lambda (i j) (get-min m i j)) (car is) (car js)))
+					(min-mtrx-r m (cdr is) (cdr js))))))
+		 
+(defun min-mtrx(m)
+	(let ((len (length m)))
+		 (min-mtrx-r m (get-is len) (get-js len))))
+		 
+(min-mtrx-r lst (get-is 3) (get-js 3))
+(min-mtrx lst)
+
+(defun dop (lst n)
+	(cond ((null lst) NIL)
+		  ((evenp n)(cons (car lst) (dop (cdr lst) (+ n 1))))
+		  (T (cons (- (car lst)) (dop (cdr lst) (+ n 1))))))
+
+(defun alg-dop(m &optional (n 0))
+	(cond ((null m) NIL)
+		  (T (cons (dop (car m) n) (alg-dop (cdr m) (+ n 1))))))
+
+(alg-dop (min-mtrx lst))
+
+(defun trans (m)
+	(apply #'mapcar #'list m))
+	
+(trans (alg-dop (min-mtrx lst)))
+
+(defun mtrx-mul(k m)
+	(cond ((null m) NIL)
+		  (T (cons (mapcar #'(lambda (x) (* k x)) (car m)) (mtrx-mul k (cdr m))))))
+		  
+(mtrx-mul -1 (trans (alg-dop (min-mtrx lst))))
+
+(defun inverse-mtrx (m)
+	(cond ((zerop (det m)) NIL)
+		  (T (mtrx-mul (/ 1 (det m)) (trans (alg-dop (min-mtrx m)))))))
+	
+(inverse-mtrx lst)
+(inverse-mtrx lst2)
+(inverse-mtrx lst3)
