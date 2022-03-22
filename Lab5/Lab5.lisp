@@ -201,3 +201,59 @@
 (mapcar #'f1 '(1 2 3))
 (mapcar #'f2 '(1 2 3) '(3 4 5))
 (mapcar #'f3 '(1 2 3) '(3 4 5) '(6 7 8))
+
+;defend Обратная матрица
+(setf lst '((1 2 3)(4 5 6)(7 8 9)))
+
+(defun forward(n &optional (res NIL))
+	(cond ((zerop n) res)
+		  (T (forward (- n 1) (cons (- n 1) res)))))	  
+
+(defun backward(n &optional (res NIL))
+	(cond ((zerop n) res)
+		  (T (cons (- n 1) (backward (- n 1) res)))))
+		  
+(forward 5)
+(backward 5)
+
+;6
+(defun move-left(lst tmp)
+	(cond ((null (cdr lst)) (setf (car lst) tmp))
+		  (T (setf (car lst) (second lst))
+			  (move-left (cdr lst) tmp))))
+
+(defun swap-to-left(lst)
+	(cond ((or (null lst) (null (cdr lst))) lst)
+		  (T (let ((tmp (first lst)))
+				  (move-left lst tmp)
+				  lst))))
+
+(defun move-right(lst tmp2)
+	(cond ((null lst) nil)
+		  (T (let ((tmp3 (car lst)))
+				  (setf (car lst) tmp2)
+				  (move-right (cdr lst) tmp3)))))
+
+(defun swap-to-right(lst)
+	(cond ((or (null lst) (null (cdr lst))) lst)
+		  (T (let ((tmp (car (last lst))))
+				  (move-right lst (car lst))
+				  (setf (car lst) tmp)
+				  lst))))
+
+(defun myget-r(m i n res)
+	(cond ((zerop n) res)
+		  (T (myget-r m (swap-to-right i) (- n 1) (cons (mapcar #'nth i m) res)))))
+	
+(defun myget(m i)
+	(myget-r m i (length m) NIL))
+	
+(myget lst '(0 1 2))
+
+(defun det(m)
+	(let ((len (length m)))
+		 (- (apply #'+ (mapcar #'(lambda (x) (apply #'* x)) (myget m (forward len))))
+			(apply #'+ (mapcar #'(lambda (x) (apply #'* x)) (myget m (backward len)))))))
+		 
+(det lst)
+
