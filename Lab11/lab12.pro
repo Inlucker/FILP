@@ -4,7 +4,7 @@ name, tel, university = string.
 predicates
 sprav(name, tel)
 university(name, university)
-un_sprav(university, tel)
+un_sprav(university, name, tel)
 
 clauses
 sprav("Arseny", "89167376051").
@@ -24,10 +24,10 @@ university("Ilya", "HSE").
 university("Artem", "MIRAEA").
 university("Andrey", "MIPT").
 
-un_sprav(U, T):-sprav(S, T),university(S, U).
+un_sprav(U, S, T):-sprav(S, T),university(S, U).
 
 goal
 %university("Ilya", "BMSTU").
 %university(X, "BMSTU").
-un_sprav("BMSTU", X).
-%un_sprav(X, "89167376059").
+%un_sprav("BMSTU", X, Y).
+un_sprav(X, Y, "89167376059").
