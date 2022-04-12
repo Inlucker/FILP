@@ -68,6 +68,16 @@ person_by_city(S, C, St, B, T):-tel_sprav(S, T, adr(C, St, _, _)),bank_depositor
 person_by_car(Br, Col, S, City, T, Bank):-car(S, Br, Col, _),tel_sprav(S, T, adr(City, _, _, _)),bank_depositor(S, Bank, _, _).
 
 goal
+%PART 1
+%tel_sprav("Pronin", "89167376051", adr("Moscow", "Tverskaya", 1, 1)).
+%tel_sprav(X, Y, adr("Moscow", "Tverskaya", 1, Z)).
+%car("Pronin", X, Y, Z).
+%bank_depositor("Trunov", X, Y, Z).
+%car_by_tel("89167376051", X, Y, Z). %1a
+%brand_by_tel("89167376051", X). %1b
+%person_by_city("Pronin", "Moscow", X, Y, Z). %2
+
+%PART 2
 %person_by_car("Audi", "Violet", Surname, City, Telephone, Bank). %several owners
 %person_by_car("Audi", "Black", Surname, City, Telephone, Bank). %one owner
 person_by_car("Audi", "Green", Surname, City, Telephone, Bank). %no owners
