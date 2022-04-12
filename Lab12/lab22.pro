@@ -63,9 +63,12 @@ bank_depositor("Trunov", "SberBank", "40817810099910004317", 7000000).
 bank_depositor("Trunov", "VTB", "40817810099910004318", 7000000).
 car_by_tel(T, S, B, P):-student_tel(S, T),car(S, B, _, P).
 brand_by_tel(T, B):-car_by_tel(T, _, B, _).
-person_by_city(S, C, St, B, T):-tel_sprav(S, T, adr(C, St, _, _)),bank_depositor(S, B, _, _).
+person_by_city(S, C, St, B, T):-tel_sprav(S, T, adr(C, St, _, _)),
+								bank_depositor(S, B, _, _).
 
-person_by_car(Br, Col, S, City, T, Bank):-car(S, Br, Col, _),tel_sprav(S, T, adr(City, _, _, _)),bank_depositor(S, Bank, _, _).
+person_by_car(Br, Col, S, City, T, Bank):-car(S, Br, Col, _),
+										  tel_sprav(S, T, adr(City, _, _, _)),
+										  bank_depositor(S, Bank, _, _).
 
 goal
 %PART 1
