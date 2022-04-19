@@ -8,9 +8,12 @@ brand, color = string
 price = integer
 bank, account = string
 amount = integer
-
 building, area, water_vehicle = string
 property = car(brand, color, price); build(building, price);  ar(area, price); wv(water_vehicle, price)
+
+name = string
+sex = m; f
+human = h(name, sex)
 
 predicates
 student_tel(surname, tel)
@@ -24,12 +27,14 @@ car_by_tel(tel, surname, brand, price)
 brand_by_tel(tel, brand)
 person_by_city(surname, city, street, bank, tel)
 person_by_car(brand, color, surname, city, tel, bank)
-
 property(surname, property)
 props_names(surname, string)
 props_names_prices(surname, string, integer)
 prop_price(surname, symbol, price)
 props_total_price(surname, price)
+
+parent(human, human)
+grandparent(human, name, sex)
 
 clauses
 student_tel("Pronin", "89167376051").
@@ -55,10 +60,13 @@ student_adress("Alahov", adr("Moscow", "Tverskaya", 1, 4)).
 student_adress("Trunov", adr("Moscow", "Tverskaya", 1, 5)).
 tel_sprav(S, T, A):-student_tel(S, T),student_adress(S, A).
 car("Pronin", "Audi", "Black", 2000000).
+%car("Pronin", "BMW", "White", 2000000).
+%car("Pronin", "Ford", "Gray", 2000000).
 car("Lisnevsky", "BMW", "Green", 3000000).
 car("Klimov", "Ford", "Blue", 4000000).
 car("Alahov", "BMW", "Red", 5000000).
 car("Trunov", "Audi", "Violet", 7000000).
+%car("Pronin", "Audi", "Violet", 7000000).
 bank_depositor("Pronin", "SberBank", "40817810099910004312", 7000000).
 bank_depositor("Lisnevsky", "SberBank", "40817810099910004313", 4000000).
 bank_depositor("Klimov", "VTB", "40817810099910004314", 5000000).
@@ -70,7 +78,6 @@ car_by_tel(T, S, B, P):-student_tel(S, T),car(S, B, _, P).
 brand_by_tel(T, B):-car_by_tel(T, _, B, _).
 person_by_city(S, C, St, B, T):-tel_sprav(S, T, adr(C, St, _, _)),bank_depositor(S, B, _, _).
 person_by_car(Br, Col, S, City, T, Bank):-car(S, Br, Col, _),tel_sprav(S, T, adr(City, _, _, _)),bank_depositor(S, Bank, _, _).
-
 property(S, car(B, C, P)):-car(S, B, C, P).
 property("Pronin", build("Kremlin", 700)).
 property("Pronin", ar("Russia", 80)).
@@ -89,8 +96,17 @@ props_total_price(S, SUM):-prop_price(S, building, P1),
 			   prop_price(S, car, P4),
 			   SUM = P1+P2+P3+P4.
 
+parent(h("Sergey", m), h("Arseny", f)).
+parent(h("Natalia", f), h("Arseny", f)).
+parent(h("Mihail", m), h("Sergey", m)).
+parent(h("Mura", f), h("Sergey", m)).
+parent(h("Leonid", m), h("Natalia", f)).
+parent(h("Maria", f), h("Natalia", f)).
+grandparent(h(GN, GS), N, PS):-parent(h(PN, PS), h(N, _)), parent(h(GN, GS), h(PN, PS)).
+
 goal
-%property("Pronin", Y).
-%props_names("Pronin", NAME). %1
-%props_names_prices("Pronin", NAME, PRICE). %2
-props_total_price("Pronin", TOTAL_PRICE). %3
+%grandparent(h(N, f), "Arseny", _). %1
+%grandparent(h(N, m), "Arseny", _). %2
+%grandparent(h(N, _), "Arseny", _). %3
+%grandparent(h(N, f), "Arseny", f). %4
+grandparent(h(N, _), "Arseny", f). %5
