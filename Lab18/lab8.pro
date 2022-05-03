@@ -33,7 +33,7 @@ get_odds(L, R):-get_odds_r(L, 0, R).
 dh(H, T, N, L):-not(H=N), L=[H|T], !.
 dh(_, T, _, L):-L=T.
 delete([], _, []):-!.
-delete([H|T], N, R):-write(T), nl, delete(T, N, NR), dh(H, NR, N, R).
+delete([H|T], N, R):-delete(T, N, NR), dh(H, NR, N, R).
 
 member(N, [N|_]):-!.
 member(N, [_|T]):-member(N,T).
