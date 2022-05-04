@@ -1,7 +1,6 @@
 country(1, "Russia").
 country(2, "USA").
 country(3, "Ukraine").
-country(3, "Ukraine2").
 
 sponsor(1, 1, "GGBet").
 sponsor(2, 2, "Red Bull").
@@ -53,7 +52,7 @@ get_age_stats(RES):-findall(("Midlaner", Avgage, Minage, Maxage), (get_avgage("M
     				findall(("Offlaner", Avgage, Minage, Maxage), (get_avgage("Offlaner", Avgage),get_maxage("Offlaner", Maxage),get_minage("Offlaner", Minage)), R2),
     				append(R1, R2, RES).
 
-%get_matches(2, MATCHES)
-%team_winners(TEAMS)
-%best_players(PLAYERS)
-%get_age_stats(STATS)
+%get_matches(2, MATCHES).
+%team_winners(TEAMS).
+%best_players(PLAYERS).
+%get_age_stats(STATS).
