@@ -25,11 +25,14 @@ skill2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, Dmg1, Armor1, NewH
     Skill = "LIFE LEACH2",
     format('~s uses LIFE LEACH for ~3f dmg\n', [Player2, LL]). %LIFE LEACH
 
-winner(character(_, HP1, _, _), character(Player2, _, _, _), Player2, _, WinStrat, WinStrat):-
-    (HP1 < 0 ; HP1 = 0), !, format('~s wins!!!!!!\n\n', [Player2]).
-
-winner(character(Player1, _, _, _), character(_, HP2, _, _), Player1, _, WinStrat, WinStrat):-
-    (HP2 < 0 ; HP2 = 0), !, format('~s wins!!!!!!\n\n', [Player1]).
+winner(character(_, HP1, _, _), character(Player2, _, _, _), Winner, _, WinStrat, WinStrat):-
+    (HP1 < 0 ; HP1 = 0), !,
+    format('~s wins!!!!!!\n\n', [Player2]),
+    Winner = Player2.
+winner(character(Player1, _, _, _), character(_, HP2, _, _), Winner, _, WinStrat, WinStrat):-
+    (HP2 < 0 ; HP2 = 0), !,
+    format('~s wins!!!!!!\n\n', [Player1]),
+    Winner = Player1.
 
 winner(character(Player1, HP1, Dmg1, Armor1), character(Player2, HP2, Dmg2, Armor2), Winner, N, Strat, WinStrat):-
     format('Turn ~d\n', [N]),
