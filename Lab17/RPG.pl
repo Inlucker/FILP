@@ -1,6 +1,8 @@
 %character(Name, HP, Dmg, Armor)
-player1(character("Player1", 5, 5, 0.5)).
-player2(character("Player2", 5, 4, 0.6)).
+player1(character(N, 5, 5, 0.5)):-name1(N).
+player2(character(N, 5, 4, 0.6)):-name2(N).
+name1(N):-N="Player1".
+name2(N):-N="Player2".
 
 %skill(Player, HP1, Dmg1, Armor1, Player2, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
 skill1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, HP1, Dmg1, Armor1, NewHP2, Dmg2, Armor2):-
@@ -19,9 +21,9 @@ skill2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, Dmg1, Armor1, NewH
     LL = Dmg2*0.6*(1-Armor1), NewHP2 = HP2+LL, NewHP1= HP1-LL,
     format('~s uses LIFE LEACH for ~3f dmg\n', [Player2, LL]). %LIFE LEACH
 
-winner(character(_, HP1, _, _), character(Player2, _, _, _), Winner, _):-(HP1 < 0 ; HP1 = 0), Winner = Player2, !,
+winner(character(_, HP1, _, _), character(Player2, _, _, _), Winner, _):-(HP1 < 0 ; HP1 = 0), !, Winner = Player2,
     format('~s wins!!!!!!\n\n', [Player2]).
-winner(character(Player1, _, _, _), character(_, HP2, _, _), Winner, _):-(HP2 < 0 ; HP2 = 0), Winner = Player1, !,
+winner(character(Player1, _, _, _), character(_, HP2, _, _), Winner, _):-(HP2 < 0 ; HP2 = 0), !, Winner = Player1,
     format('~s wins!!!!!!\n\n', [Player1]).
 
 winner(character(Player1, HP1, Dmg1, Armor1), character(Player2, HP2, Dmg2, Armor2), Winner, N):-
@@ -38,7 +40,8 @@ turn(Player1, _, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor
 turn(_, Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2, N):-T is (N mod 2), T = 0,
     skill2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
 
-example(Player1, Player2, Winner):-player1(Player1), player2(Player2), winner(Player1, Player2, Winner, 1).
+example(Winner):-player1(Player1), player2(Player2), winner(Player1, Player2, Winner, 1).
+%get_win_strategy(Winner, Strat):-player1(Player1), player2(Player2), winners(Player1, Player2, Winner, 1, Strat).
 
-%example(Player1, Player2, Winner).
-%example(character("Player1", 5, 5, 0.5), Player2, "Player1")
+%example(Winner).
+%name1(N), example(Player1, Player2, N)
