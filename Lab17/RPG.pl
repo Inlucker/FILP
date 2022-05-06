@@ -8,8 +8,8 @@ skill1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, HP1, Dmg1, Armor1, NewHP2,
     format('~s uses HIT dealing ~3f damage\n', [Player1, Dmg1*(1-Armor2)]). %HIT
 
 skill1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, HP1, Dmg1, Armor1, NewHP2, Dmg2, NewArmor2):-
-    SS = Armor1*0.2, NewArmor2 is Armor2-SS*0.5, NewHP2 is HP2-SS,
-    format('~s uses SHIELD SLAM decreasing enemy Armor by ~3f and dealing ~3f dmg\n', [Player1, SS*0.5, SS]). %ARMOR REDUCTION
+    SS = Armor1, NewArmor2 is Armor2-SS*0.5, NewHP2 is HP2-SS*(1-NewArmor2),
+    format('~s uses SHIELD SLAM decreasing enemy Armor by ~3f and dealing ~3f dmg\n', [Player1, SS*0.5, SS*(1-NewArmor2)]). %ARMOR REDUCTION
 
 skill2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, Dmg1, Armor1, HP2, Dmg2, Armor2):-
     NewHP1 is HP1-Dmg2*(1-Armor1),
@@ -34,15 +34,9 @@ winner(character(Player1, HP1, Dmg1, Armor1), character(Player2, HP2, Dmg2, Armo
 
 %turn(Player1, Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2)
 turn(Player1, _, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2, N):-T is (N mod 2), T = 1,
-    turn1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
+    skill1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
 turn(_, Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2, N):-T is (N mod 2), T = 0,
-    turn2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
-turn1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2,
-	NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2):-skill1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2,
-																NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
-turn2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2,
-	NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2):-skill2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2,
-																NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
+    skill2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
 
 example(Player1, Player2, Winner):-player1(Player1), player2(Player2), winner(Player1, Player2, Winner, 1).
 
