@@ -1,25 +1,38 @@
-%Персонаж(Имя, Здоровье, Атака, Защита)
-игрок1(персонаж("Player1", 100, 5, 0.5)).
-игрок2(персонаж("Player2", 100, 4, 0.6)).
+%character(Name, HP, Dmg, Armor)
+player1(character("Player1", 10, 5, 0.5)).
+player2(character("Player2", 10, 4, 0.6)).
 
-%навык(HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2):-NewHP2=HP2-Dmg1*(1-Armor2). %удар
-навык(_, Dmg1, _, HP2, _, Armor2, _, _, _, NewHP2, _, _):-NewHP2 is HP2-Dmg1*(1-Armor2). %удар
+%skill(Player, HP1, Dmg1, Armor1, Player2, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
+skill1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, HP1, Dmg1, Armor1, NewHP2, Dmg2, Armor2):-NewHP2 is HP2-Dmg1*(1-Armor2),
+    format('~s uses HIT dealing ~3f damage\n', [Player1, Dmg1*(1-Armor2)]). %УДАР
 
-победитель(персонаж(_, HP1, _, _), персонаж(Player2, _, _, _), Winner):-HP1<1, Winner = Player2, !.
-победитель(персонаж(Player1, _, _, _), персонаж(_, HP2, _, _), Winner):-HP2<1, Winner = Player1, !.
-победитель(персонаж(Player1, HP1, Dmg1, Armor1), персонаж(Player2, HP2, Dmg2, Armor2), Winner):-
-	ход(Dmg1, HP2, Armor2, HP2new),
-	победитель(персонаж(Player2, HP2new, Dmg2, Armor2), персонаж(Player1, HP1, Dmg1, Armor1), Winner).
+skill2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, Dmg1, Armor1, HP2, Dmg2, Armor2):-NewHP1 is HP1-Dmg2*(1-Armor1),
+    format('~s uses HIT dealing ~3f damage\n', [Player2, Dmg2*(1-Armor1)]). %УДАР
+skill2(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, Dmg1, Armor1, HP2, Dmg2, Armor2):-NewHP1 is HP1+Dmg1*0.1,
+    format('~s uses HEAL\n', [Player1]). %HEAL
 
-%ход(Dmg1, HP2, Armor2, HP2new):-HP2new=HP2-Dmg1*(1-Armor2).
-ход(HP1, Dmg1, Armor1, HP2, Dmg2, Armor2,
-	NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2):-навык(HP1, Dmg1, Armor1, HP2, Dmg2, Armor2,
+winner(character(_, HP1, _, _), character(Player2, _, _, _), Winner, _):-HP1<1, Winner = Player2, !.
+winner(character(Player1, _, _, _), character(_, HP2, _, _), Winner, _):-HP2<1, Winner = Player1, !.
+
+winner(character(Player1, HP1, Dmg1, Armor1), character(Player2, HP2, Dmg2, Armor2), Winner, N):-
+    format('Turn ~d\n', [N]),
+	turn(Player1, Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2, N),
+    format('~s: HP=~3f;\n~s: HP=~3f.\n\n', [Player1, NewHP1, Player2, NewHP2]),
+    NN is N+1,
+	winner(character(Player1, NewHP1, NewDmg1, NewArmor1), character(Player2, NewHP2, NewDmg2, NewArmor2), Winner, NN).
+
+%turn(Player1, Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2)
+turn(Player1, _, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2, N):-T is (N mod 2), T = 1,
+    turn1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2), !.
+turn(_, Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2, _):-
+    turn2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2), !.
+turn1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2,
+	NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2):-skill1(Player1, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2,
+																NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
+turn2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2,
+	NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2):-skill2(Player2, HP1, Dmg1, Armor1, HP2, Dmg2, Armor2,
 																NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2).
 
-пример(Игрок1, Игрок2, Победитель):-игрок1(Игрок1), игрок2(Игрок2), победитель(Игрок1, Игрок2, Победитель).
+example(Player1, Player2, Winner):-player1(Player1), player2(Player2), winner(Player1, Player2, Winner, 1).
 
-%победитель(персонаж("Player1", 100, 5, 0.5), персонаж("Player2", 100, 5, 0.5), Winner).
-%победитель("Player1", 100, 5, 0.5, "Player2", 100, 5, 0.5, Winner).
-%пример(Игрок1, Игрок2, Победитель).
-%ход(100, 5, 0.5, 100, 4, 0.6, Навык, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2)
-%ход(100, 5, 0.5, 100, 4, 0.6, NewHP1, NewDmg1, NewArmor1, NewHP2, NewDmg2, NewArmor2)
+%example(Player1, Player2, Winner).
