@@ -1,6 +1,6 @@
 %character(Name, HP, Dmg, Armor)
-player1(character(N, 5, 5, 0.5)):-name1(N).
-player2(character(N, 5, 4, 0.6)):-name2(N).
+player1(character(N, 5, 2.5, 0.75)):-name1(N).
+player2(character(N, 5, 6, 0.4)):-name2(N).
 name1(N):-N="Player1".
 name2(N):-N="Player2".
 
