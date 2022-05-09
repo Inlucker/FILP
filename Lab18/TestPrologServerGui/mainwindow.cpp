@@ -90,11 +90,12 @@ void MainWindow::onResult(QNetworkReply *reply)
                      ui->textEdit->append(QString::number(portal.value("x").toInt()) + " " + QString::number(portal.value("y").toInt()));
                 }
 
-                //player
+                //finish
                 ui->textEdit->append(jpole.keys().at(0) + ": ");
-                QJsonObject player = jpole.value("player").toObject();
-                setPlayer(player.value("x").toInt(), player.value("y").toInt());
-                ui->textEdit->append(QString::number(player.value("x").toInt()) + " " + QString::number(player.value("y").toInt()));
+                QJsonObject finish = jpole.value("finish").toObject();
+                setFinish(finish.value("x").toInt(), finish.value("y").toInt());
+                ui->textEdit->append(QString::number(finish.value("x").toInt()) + " " + QString::number(finish.value("y").toInt()));
+
 
                 //walls
                 ui->textEdit->append(jpole.keys().at(2) + ": ");
@@ -102,9 +103,16 @@ void MainWindow::onResult(QNetworkReply *reply)
                 for (int j = 0; j < walls.count(); j++)
                 {
                      QJsonObject wall = walls.at(j).toObject();
-                     setWall(wall.value("x").toInt(), wall.value("y").toInt());
+                     setWall(wall.value("x").toInt(), wall.value("y").toInt(), wall.value("n").toInt());
                      ui->textEdit->append(QString::number(wall.value("x").toInt()) + " " + QString::number(wall.value("y").toInt()));
                 }
+
+                //player
+                ui->textEdit->append(jpole.keys().at(0) + ": ");
+                QJsonObject player = jpole.value("player").toObject();
+                setPlayer(player.value("x").toInt(), player.value("y").toInt());
+                ui->textEdit->append(QString::number(player.value("x").toInt()) + " " + QString::number(player.value("y").toInt()));
+
                 //printPole();
                 pole_path.push_back(Pole(pole));
             }
@@ -166,9 +174,17 @@ void MainWindow::setPortal(int x, int y)
     pole[x][y] = -4;
 }
 
-void MainWindow::setWall(int x, int y)
+void MainWindow::setWall(int x, int y, int n)
 {
-    pole[x][y] = -2;
+    if (n == 0)
+        pole[x][y] = -2;
+    else
+        pole[x][y] = n;
+}
+
+void MainWindow::setFinish(int x, int y)
+{
+    pole[x][y] = -3;
 }
 
 void MainWindow::redraw()

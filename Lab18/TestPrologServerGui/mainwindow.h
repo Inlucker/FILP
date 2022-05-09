@@ -35,7 +35,8 @@ private:
     void setPole(Pole& p);
     void setPlayer(int x, int y);
     void setPortal(int x, int y);
-    void setWall(int x, int y);
+    void setWall(int x, int y, int n);
+    void setFinish(int x, int y);
     void redraw();
     void redraw(int i);
     void redraw(Pole& p);

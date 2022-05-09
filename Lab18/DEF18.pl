@@ -37,11 +37,18 @@ cell(2, 4,  X, Y, _):-X = 2, Y = 4.
 cell(3, 4,  X, Y, _):-X = 3, Y = 4.
 cell(4, 4,  X, Y, _):-X = 4, Y = 4, asserta(finish()).	%finish
 
-get_blocks(N, Blocks):-T4 is (N mod 4), T4 = 0, T2 is (N mod 2), T2 = 0, B1=json{x:3, y:2}, B2=json{x:1, y:2}, B4=json{x:3, y:3}, Blocks = [B1, B2, B4], !.
-get_blocks(N, Blocks):-T2 is (N mod 2), T2 = 0, B1=json{x:3, y:2}, B2=json{x:1, y:2}, Blocks = [B1, B2], !.
-get_blocks(_, Blocks):-B1=json{x:3, y:2}, Blocks = [B1].
+get_blocks(N, Blocks):-T4 is (N mod 4), T4 = 0, T2 is (N mod 2), T2 = 0,
+    B1=json{x:3, y:2, n:0}, B2=json{x:1, y:2, n:0}, B4=json{x:3, y:3, n:0},
+    Blocks = [B1, B2, B4], !.
+get_blocks(N, Blocks):-T2 is (N mod 2), T2 = 0, T4 is 4-(N mod 4),
+    B1=json{x:3, y:2, n:0}, B2=json{x:1, y:2, n:0}, B4=json{x:3, y:3, n:T4},
+    Blocks = [B1, B2, B4], !.
+get_blocks(N, Blocks):-T4 is 4-(N mod 4), T2 is 2-(N mod 2),
+    B1=json{x:3, y:2, n:0}, B2=json{x:1, y:2, n:T2}, B4=json{x:3, y:3, n:T4},
+    Blocks = [B1, B2, B4].
 get_portals(Portals):-P1 = json{x:2, y:1}, P2 = json{x:1, y:3}, Portals = [P1, P2].
-get_pole(X, Y, N, Pole):-get_blocks(N, Blocks), get_portals(Portals), Pole = json{player:json{x:X, y:Y}, walls:Blocks, portals:Portals}.
+get_finish(Finish):-Finish = json{x:4, y:4}.
+get_pole(X, Y, N, Pole):-get_blocks(N, Blocks), get_portals(Portals), get_finish(Finish), Pole = json{player:json{x:X, y:Y}, walls:Blocks, portals:Portals, finish:Finish}.
 
 move(X1, Y1, X2, Y2, N, Move):-reset_finish(), NX1 is X1+1, cell(NX1, Y1, X2, Y2, N),
     %format('Moved right, pos=[~w;~w]\n', [X2, Y2]),
@@ -72,24 +79,24 @@ update_min(M):-retractall(min(_)), asserta(min(M):-!).
 reset_finish():-retractall(finish()).
 winner(_, _, N, _, _, _):-min(Min), N > Min, !, fail. %Не ищем решения длинее найденых
 winner(_, _, N, Res, Path, Path):-%format('Reached finish by ~w turns!!!\n\n', [N]),
-	finish(), !, Res = N, update_min(N).
+	finish(), !, Res is N-1, update_min(Res).
 winner(X1, Y1, N, Res, Path, FullPath):-%format('Turn ~w: ', [N]),
     move(X1, Y1, X2, Y2, N, Move), NN is N+1,
     append(Path, [Move], NewPath),
     winner(X2, Y2, NN, Res, NewPath, FullPath).
 
 reset():-retractall(min(_)), retractall(finish()).
-example(X0, Y0, N, Res, Path):-reset(), asserta(min(30):-!), get_pole(X0, Y0, N, Pole), winner(X0, Y0, N, Res, [Pole], Path).
-get_min(X0, Y0, Min):-reset(), asserta(min(30):-!), findall(Res, winner(X0, Y0, 0, Res, [], _), _), min(Min). %, min_list(L, Min).
+example(X0, Y0, N, Res, Path):-reset(), asserta(min(30):-!), get_pole(X0, Y0, 0, Pole), winner(X0, Y0, N, Res, [Pole], Path).
+get_min(X0, Y0, Min):-reset(), asserta(min(30):-!), findall(Res, winner(X0, Y0, 1, Res, [], _), _), min(Min). %, min_list(L, Min).
 
-%example(0, 1, 0, Res, Path).
+%example(0, 1, 1, Res, Path).
 %get_min(0, 1, Min).
 %min(X), example(0, 1, 0, X).
     
 :- http_handler(root(.), my_func, []).
 
 my_func(_Request):-
-	get_min(0, 1, Min), example(0, 1, 0, Min, Path),
+	get_min(0, 1, Min), example(0, 1, 1, Min, Path),
 	reply_json(json{pole:Path}).
 	
 server():-http_server(http_dispatch, [port(3000)]).
