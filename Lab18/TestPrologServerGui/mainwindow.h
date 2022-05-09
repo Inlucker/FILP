@@ -7,6 +7,12 @@
 #include <QMainWindow>
 #include <QNetworkAccessManager>
 
+
+#define N 5
+#define SIZE 5.
+#define SIZE_X SIZE
+#define SIZE_Y SIZE
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -31,14 +37,11 @@ private slots:
 private:
     void resetPole();
     void printPole();
-    //void resetPole(int p[5][5]);
-    void setPole(Pole& p);
     void setPlayer(int x, int y);
     void setPortal(int x, int y);
     void setWall(int x, int y, int n);
     void setFinish(int x, int y);
     void redraw();
-    void redraw(int i);
     void redraw(Pole& p);
     void start();
 
@@ -46,7 +49,7 @@ private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *networkManager;
     Images* pictures;
-    int pole[5][5];
+    int pole[N][N];
     QImage* image;
     int left, top, width, height;
     vector<Pole> pole_path;

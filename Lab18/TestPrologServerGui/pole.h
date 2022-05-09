@@ -8,7 +8,7 @@ using namespace std;
 class Pole
 {
 public:
-    Pole();
+    Pole() = delete;
     Pole(int p[5][5]);
 
     void reset();

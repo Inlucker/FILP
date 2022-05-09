@@ -30,14 +30,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     pictures = new Images;
     pictures->load();
-    left = 0;
-    top = 0;
-    width = 36*6;
-    height = 36*6;
+    left = 18;
+    top = 18;
+    width = 36*(N);
+    height = 36*(N);
     image = new QImage(width, height, QImage::Format_ARGB32);
 
     resetPole();
-    setPlayer(0, 1);
     redraw();
 }
 
@@ -127,42 +126,21 @@ void MainWindow::onResult(QNetworkReply *reply)
 
 void MainWindow::resetPole()
 {
-    for (int i = 0; i < 5; i++)
-        for (int j = 0; j < 5; j++)
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
             pole[i][j] = -1;
-
-    /*pole[3][2] = -2; //block
-    pole[1][2] = -2; //block 1/2
-    pole[3][3] = -2; //block 1/4
-    pole[4][4] = -3; //finish
-    pole[2][1] = -4; //portal
-    pole[1][3] = -4; //portal*/
 }
 
 void MainWindow::printPole()
 {
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < N; i++)
     {
-        for (int j = 0; j < 5; j++)
+        for (int j = 0; j < N; j++)
             cout << pole[j][i] << " ";
         cout << endl;
     }
     cout << endl;
 }
-
-void MainWindow::setPole(Pole &p)
-{
-    for (int i = 0; i < 5; i++)
-        for (int j = 0; j < 5; j++)
-            pole[i][j] = p(i, j);
-}
-
-/*void MainWindow::resetPole(int p[5][5])
-{
-    for (int i = 0; i < 5; i++)
-        for (int j = 0; j < 5; j++)
-            p[i][j] = -1;
-}*/
 
 void MainWindow::setPlayer(int x, int y)
 {
@@ -191,30 +169,24 @@ void MainWindow::redraw()
 {
     image->fill(0);
     QPainter painter(image);
-    double cfx = 1.0 * width / 5.0;
-    double cfy = 1.0 * height / 5.0;
-    for (int i = 0; i < 5; i++)
-        for (int j = 0; j < 5; j++)
+    double cfx = 1.0 * width / SIZE;
+    double cfy = 1.0 * height / SIZE;
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
         {
             painter.drawImage(i * cfx, j * cfy, pictures->getImage(pole[i][j]));
         }
     this->update();
 }
 
-void MainWindow::redraw(int i)
-{
-    setPole(pole_path[i]);
-    redraw();
-}
-
 void MainWindow::redraw(Pole &p)
 {
     image->fill(0);
     QPainter painter(image);
-    double cfx = 1.0 * width / 5.0;
-    double cfy = 1.0 * height / 5.0;
-    for (int i = 0; i < 5; i++)
-        for (int j = 0; j < 5; j++)
+    double cfx = 1.0 * width / SIZE;
+    double cfy = 1.0 * height / SIZE;
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
         {
             painter.drawImage(i * cfx, j * cfy, pictures->getImage(p(i, j)));
         }
