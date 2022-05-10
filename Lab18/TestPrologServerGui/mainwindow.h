@@ -6,7 +6,12 @@
 
 #include <QMainWindow>
 #include <QNetworkAccessManager>
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <memory>
 
+using namespace std;
 
 #define N 5
 #define SIZE 5.
@@ -45,6 +50,8 @@ private:
     void redraw(Pole& p);
     void start();
 
+    void threadFunc();
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *networkManager;
@@ -53,6 +60,9 @@ private:
     QImage* image;
     int left, top, width, height;
     vector<Pole> pole_path;
-    //Path* path;
+    bool busy = true;
+    mutex m1, m2, m3;
+    unique_ptr<std::thread> t;
+    std::vector<std::exception_ptr>  g_exceptions;
 };
 #endif // MAINWINDOW_H

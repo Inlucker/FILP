@@ -12,8 +12,6 @@
 #include <iostream>
 #include <unistd.h>
 
-using namespace std;
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -36,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent)
     height = 36*(N);
     image = new QImage(width, height, QImage::Format_ARGB32);
 
+    t.release();
+
     resetPole();
     redraw();
 }
@@ -46,10 +46,12 @@ MainWindow::~MainWindow()
     delete networkManager;
     delete pictures;
     delete image;
+    t.release();
 }
 
 void MainWindow::paintEvent(QPaintEvent *pEvent)
 {
+    cout << pthread_self() << endl;
     QPainter painter(this);
     painter.drawImage(left, top, *image);
 }
@@ -120,7 +122,7 @@ void MainWindow::onResult(QNetworkReply *reply)
         //ui->textEdit->append(QString::number(root.value("number").toInt()));
     }
     reply->deleteLater();
-    //redraw(0);
+    busy = false;
     start();
 }
 
@@ -190,17 +192,53 @@ void MainWindow::redraw(Pole &p)
         {
             painter.drawImage(i * cfx, j * cfy, pictures->getImage(p(i, j)));
         }
-    //this->update();
     repaint();
 }
 
 void MainWindow::start()
 {
+    //cout << "Busy = " << busy << endl;
+    if (!busy)
+    {
+        cout << "Busy = " << busy << endl;
+        m1.lock();
+        busy = true;
+        t.release();
+        t = make_unique<std::thread>(&MainWindow::threadFunc, this);
+        /*t = make_unique<std::thread>([&]()
+        {
+            m2.lock();
+            for (auto& p : pole_path)
+            {
+                this_thread::sleep_for(chrono::seconds(1));
+                redraw(p);
+            }
+            m2.unlock();
+            cout << "HERE" << endl;
+
+            m1.lock();
+            busy = false;
+            m1.unlock();
+        });*/
+        m1.unlock();
+        //cout << ", ok" << endl;
+    }
+}
+
+void MainWindow::threadFunc()
+{
+    cout << pthread_self() << endl;
+    m2.lock();
     for (auto& p : pole_path)
     {
+        this_thread::sleep_for(chrono::seconds(1));
         redraw(p);
-        sleep(1);
     }
+    m2.unlock();
+
+    m1.lock();
+    busy = false;
+    m1.unlock();
 }
 
 
