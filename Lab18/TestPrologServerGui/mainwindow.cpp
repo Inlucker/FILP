@@ -51,7 +51,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::paintEvent(QPaintEvent *pEvent)
 {
-    cout << pthread_self() << endl;
+    //cout << pthread_self() << endl;
     QPainter painter(this);
     painter.drawImage(left, top, *image);
 }
@@ -118,8 +118,6 @@ void MainWindow::onResult(QNetworkReply *reply)
                 pole_path.push_back(Pole(pole));
             }
         }
-        // В конце забираем свойство количества сотрудников отдела и также выводим в textEdit
-        //ui->textEdit->append(QString::number(root.value("number").toInt()));
     }
     reply->deleteLater();
     busy = false;
@@ -183,49 +181,46 @@ void MainWindow::redraw()
 
 void MainWindow::redraw(Pole &p)
 {
-    image->fill(0);
-    QPainter painter(image);
     double cfx = 1.0 * width / SIZE;
     double cfy = 1.0 * height / SIZE;
+    m2.lock(); //Почему не нужен мьютекс для image????
+    image->fill(0);
+    QPainter painter(image);
     for (int i = 0; i < N; i++)
         for (int j = 0; j < N; j++)
         {
             painter.drawImage(i * cfx, j * cfy, pictures->getImage(p(i, j)));
         }
-    repaint();
+    m2.unlock();
+    update(); //JUST DO NOT repaint() HERE :D
 }
 
 void MainWindow::start()
 {
-    //cout << "Busy = " << busy << endl;
+    //image->fill(0); //почему не ломает прогу?
     if (!busy)
     {
-        cout << "Busy = " << busy << endl;
-        m1.lock();
+        m1.lock(); //почему работает без мьютекса? Из за флага?
         busy = true;
         t.release();
-        t = make_unique<std::thread>(&MainWindow::threadFunc, this);
-        /*t = make_unique<std::thread>([&]()
+        //t = make_unique<std::thread>(&MainWindow::threadFunc, this);
+        t = make_unique<std::thread>([&]()
         {
-            m2.lock();
             for (auto& p : pole_path)
             {
                 this_thread::sleep_for(chrono::seconds(1));
                 redraw(p);
             }
-            m2.unlock();
-            cout << "HERE" << endl;
 
-            m1.lock();
+            m1.lock();//почему работает без мьютекса?
             busy = false;
             m1.unlock();
-        });*/
+        });
         m1.unlock();
-        //cout << ", ok" << endl;
     }
 }
 
-void MainWindow::threadFunc()
+/*void MainWindow::threadFunc()
 {
     cout << pthread_self() << endl;
     m2.lock();
@@ -239,7 +234,7 @@ void MainWindow::threadFunc()
     m1.lock();
     busy = false;
     m1.unlock();
-}
+}*/
 
 
 void MainWindow::on_pushButton_clicked()

@@ -50,7 +50,7 @@ private:
     void redraw(Pole& p);
     void start();
 
-    void threadFunc();
+    //void threadFunc();
 
 private:
     Ui::MainWindow *ui;
