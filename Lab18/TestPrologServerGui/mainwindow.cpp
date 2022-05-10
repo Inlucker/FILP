@@ -181,29 +181,24 @@ void MainWindow::redraw()
 
 void MainWindow::redraw(Pole &p)
 {
+    image->fill(0);
     double cfx = 1.0 * width / SIZE;
     double cfy = 1.0 * height / SIZE;
-    m2.lock(); //Почему не нужен мьютекс для image????
-    image->fill(0);
     QPainter painter(image);
     for (int i = 0; i < N; i++)
         for (int j = 0; j < N; j++)
         {
             painter.drawImage(i * cfx, j * cfy, pictures->getImage(p(i, j)));
         }
-    m2.unlock();
     update(); //JUST DO NOT repaint() HERE :D
 }
 
 void MainWindow::start()
 {
-    //image->fill(0); //почему не ломает прогу?
     if (!busy)
     {
-        m1.lock(); //почему работает без мьютекса? Из за флага?
         busy = true;
         t.release();
-        //t = make_unique<std::thread>(&MainWindow::threadFunc, this);
         t = make_unique<std::thread>([&]()
         {
             for (auto& p : pole_path)
@@ -212,11 +207,8 @@ void MainWindow::start()
                 redraw(p);
             }
 
-            m1.lock();//почему работает без мьютекса?
             busy = false;
-            m1.unlock();
         });
-        m1.unlock();
     }
 }
 
