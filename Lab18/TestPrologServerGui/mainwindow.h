@@ -39,6 +39,8 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_sendJson_btn_clicked();
+
 private:
     void resetPole();
     void printPole();
@@ -50,6 +52,10 @@ private:
     void redraw(Pole& p);
     void start();
 
+    void sendJson();
+    void sendJson2();
+    void readJson(QJsonDocument &document);
+    void readJson2(QJsonDocument &document);
     //void threadFunc();
 
 private:
@@ -60,7 +66,7 @@ private:
     QImage* image;
     int left, top, width, height;
     vector<Pole> pole_path;
-    bool busy = true;
+    bool busy = false;
     mutex m1, m2, m3;
     unique_ptr<std::thread> t;
     std::vector<std::exception_ptr>  g_exceptions;

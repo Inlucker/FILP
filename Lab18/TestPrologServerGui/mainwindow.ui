@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>295</height>
+    <width>530</width>
+    <height>335</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
      <rect>
       <x>10</x>
       <y>210</y>
-      <width>461</width>
+      <width>191</width>
       <height>61</height>
      </rect>
     </property>
@@ -42,13 +42,31 @@
      <string>Start</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="sendJson_btn">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>210</y>
+      <width>261</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>36</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>SendJson</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>483</width>
+     <width>530</width>
      <height>25</height>
     </rect>
    </property>

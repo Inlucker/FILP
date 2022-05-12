@@ -2,6 +2,9 @@
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_error)).
 :- use_module(library(http/http_json)).
+:- use_module(library(http/http_open)).
+:- use_module(library(http/json)).
+:- use_module(library(http/http_client)).
 
 :- initialization server.
 
@@ -122,8 +125,32 @@ example(X0, Y0, Path, Res):-reset(X0, Y0), asserta(min(25):-!),
     
 :- http_handler(root(.), my_func, []).
 
-my_func(_Request):-
+print_data(Data):-write(Data), nl.
+
+/*
+my_func(Request):-
+	http_read_jsont(Request, Json),
+    print_dict(Json),
+	%http_read_data(Request, Data, []),
+	%print_data(Data).
 	example(0, 1, Path, _),
 	reply_json(json{pole:Path}).
+	*/
+	
+my_func(Request):-
+	http_read_json(Request, Json),
+	reply_json(Json).
 	
 server():-http_server(http_dispatch, [port(3000)]).
+
+%Client part (NO NEED :D)
+read_from_server_dict(Dict):-	http_open('http://localhost:3000/', In, []),
+								json_read_dict(In, Dict),
+								write(Dict),
+								close(In).
+								
+read_from_server_json(Json):-	http_open('http://localhost:3000/', In, []),
+								json_read(In, Json),
+								write(Json),
+								close(In).
+

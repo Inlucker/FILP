@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Подключаем networkManager к обработчику ответа
     connect(networkManager, &QNetworkAccessManager::finished, this, &MainWindow::onResult);
     // Получаем данные, а именно JSON файл с сайта по определённому url
-    networkManager->get(QNetworkRequest(QUrl("http://localhost:3000/")));
+    //networkManager->get(QNetworkRequest(QUrl("http://localhost:3000/")));
 
     pictures = new Images;
     pictures->load();
@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
     height = 36*(N);
     image = new QImage(width, height, QImage::Format_ARGB32);
 
+    busy = false;
     t.release();
 
     resetPole();
@@ -56,71 +57,90 @@ void MainWindow::paintEvent(QPaintEvent *pEvent)
     painter.drawImage(left, top, *image);
 }
 
+void MainWindow::readJson(QJsonDocument& document)
+{
+    // Забираем из документа корневой объект
+    QJsonObject root = document.object();
+    ui->textEdit->append(root.keys().at(0) + ": ");
+
+    QJsonValue path = root.value("pole");
+    // Если значение является массивом, ...
+    if (path.isArray())
+    {
+        resetPole();
+        // ... то забираем массив из данного свойства
+        QJsonArray jarray = path.toArray();
+        // Перебирая все элементы массива ...
+        for (int i = 0; i < jarray.count(); i++)
+        {
+            resetPole();
+            QJsonObject jpole = jarray.at(i).toObject();
+
+            //portals
+            ui->textEdit->append(jpole.keys().at(1) + ": ");
+            QJsonArray portals = jpole.value("portals").toArray();
+            for (int j = 0; j < portals.count(); j++)
+            {
+                 QJsonObject portal = portals.at(j).toObject();
+                 setPortal(portal.value("x").toInt(), portal.value("y").toInt());
+                 ui->textEdit->append(QString::number(portal.value("x").toInt()) + " " + QString::number(portal.value("y").toInt()));
+            }
+
+            //finish
+            ui->textEdit->append(jpole.keys().at(0) + ": ");
+            QJsonObject finish = jpole.value("finish").toObject();
+            setFinish(finish.value("x").toInt(), finish.value("y").toInt());
+            ui->textEdit->append(QString::number(finish.value("x").toInt()) + " " + QString::number(finish.value("y").toInt()));
+
+
+            //walls
+            ui->textEdit->append(jpole.keys().at(2) + ": ");
+            QJsonArray walls = jpole.value("walls").toArray();
+            for (int j = 0; j < walls.count(); j++)
+            {
+                 QJsonObject wall = walls.at(j).toObject();
+                 setWall(wall.value("x").toInt(), wall.value("y").toInt(), wall.value("n").toInt());
+                 ui->textEdit->append(QString::number(wall.value("x").toInt()) + " " + QString::number(wall.value("y").toInt()));
+            }
+
+            //player
+            ui->textEdit->append(jpole.keys().at(0) + ": ");
+            QJsonObject player = jpole.value("player").toObject();
+            setPlayer(player.value("x").toInt(), player.value("y").toInt());
+            ui->textEdit->append(QString::number(player.value("x").toInt()) + " " + QString::number(player.value("y").toInt()));
+
+            //printPole();
+            pole_path.push_back(Pole(pole));
+        }
+    }
+}
+
+void MainWindow::readJson2(QJsonDocument &document)
+{
+    QJsonObject root = document.object();
+
+    ui->textEdit->append(root.keys().at(0) + ": ");
+    QJsonValue v1 = root.value("item1");
+    ui->textEdit->append(v1.toString( ));
+
+    ui->textEdit->append(root.keys().at(1) + ": ");
+    QJsonValue v2 = root.value("item2");
+    ui->textEdit->append(v2.toString( ));
+}
+
 void MainWindow::onResult(QNetworkReply *reply)
 {
+    qDebug() << "Reply2";
     // Если ошибки отсутсвуют
     if (!reply->error())
     {
         // То создаём объект Json Document, считав в него все данные из ответа
         QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
 
-        // Забираем из документа корневой объект
-        QJsonObject root = document.object();
-        ui->textEdit->append(root.keys().at(0) + ": ");
-
-        QJsonValue path = root.value("pole");
-        // Если значение является массивом, ...
-        if (path.isArray())
-        {
-            resetPole();
-            // ... то забираем массив из данного свойства
-            QJsonArray jarray = path.toArray();
-            // Перебирая все элементы массива ...
-            for (int i = 0; i < jarray.count(); i++)
-            {
-                resetPole();
-                QJsonObject jpole = jarray.at(i).toObject();
-
-                //portals
-                ui->textEdit->append(jpole.keys().at(1) + ": ");
-                QJsonArray portals = jpole.value("portals").toArray();
-                for (int j = 0; j < portals.count(); j++)
-                {
-                     QJsonObject portal = portals.at(j).toObject();
-                     setPortal(portal.value("x").toInt(), portal.value("y").toInt());
-                     ui->textEdit->append(QString::number(portal.value("x").toInt()) + " " + QString::number(portal.value("y").toInt()));
-                }
-
-                //finish
-                ui->textEdit->append(jpole.keys().at(0) + ": ");
-                QJsonObject finish = jpole.value("finish").toObject();
-                setFinish(finish.value("x").toInt(), finish.value("y").toInt());
-                ui->textEdit->append(QString::number(finish.value("x").toInt()) + " " + QString::number(finish.value("y").toInt()));
-
-
-                //walls
-                ui->textEdit->append(jpole.keys().at(2) + ": ");
-                QJsonArray walls = jpole.value("walls").toArray();
-                for (int j = 0; j < walls.count(); j++)
-                {
-                     QJsonObject wall = walls.at(j).toObject();
-                     setWall(wall.value("x").toInt(), wall.value("y").toInt(), wall.value("n").toInt());
-                     ui->textEdit->append(QString::number(wall.value("x").toInt()) + " " + QString::number(wall.value("y").toInt()));
-                }
-
-                //player
-                ui->textEdit->append(jpole.keys().at(0) + ": ");
-                QJsonObject player = jpole.value("player").toObject();
-                setPlayer(player.value("x").toInt(), player.value("y").toInt());
-                ui->textEdit->append(QString::number(player.value("x").toInt()) + " " + QString::number(player.value("y").toInt()));
-
-                //printPole();
-                pole_path.push_back(Pole(pole));
-            }
-        }
+        readJson2(document);
     }
     reply->deleteLater();
-    busy = false;
+    //busy = false;
     start();
 }
 
@@ -206,10 +226,47 @@ void MainWindow::start()
                 this_thread::sleep_for(chrono::seconds(1));
                 redraw(p);
             }
-
             busy = false;
         });
     }
+}
+
+void MainWindow::sendJson()
+{
+    QNetworkRequest request(QUrl("http://localhost:3000/"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonObject json;
+    json.insert("item1", "value1");
+    json.insert("item2", "value2");
+
+    //QNetworkAccessManager nam;
+    //QNetworkReply *reply = nam.post(request, QJsonDocument(json).toJson());
+    QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
+    qDebug() << "Request";
+}
+
+void MainWindow::sendJson2()
+{
+    //QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
+    const QUrl url(QStringLiteral("http://localhost:3000/"));
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject obj;
+
+    obj.insert("item1", "value1");
+    obj.insert("item2", "value2");
+
+    //Это не работает
+    //obj["item1"] = "value1";
+    //obj["item1"] = "value2";
+
+    QJsonDocument doc(obj);
+    QByteArray data = doc.toJson();
+    // or
+    // QByteArray data("{\"key1\":\"value1\",\"key2\":\"value2\"}");
+    QNetworkReply *reply = networkManager->post(request, data);
+    qDebug() << "Request";
 }
 
 /*void MainWindow::threadFunc()
@@ -232,5 +289,11 @@ void MainWindow::start()
 void MainWindow::on_pushButton_clicked()
 {
     start();
+}
+
+
+void MainWindow::on_sendJson_btn_clicked()
+{
+    sendJson();
 }
 
