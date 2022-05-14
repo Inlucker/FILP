@@ -3,6 +3,7 @@
 
 #include "images.h"
 #include "pole.h"
+#include "Matrix/BaseMtrx.h"
 
 #include <QMainWindow>
 #include <QNetworkAccessManager>
@@ -50,10 +51,12 @@ private:
     void setFinish(int x, int y);
     void redraw();
     void redraw(Pole& p);
+    void redraw(BaseMtrx<int>& p);
     void start();
 
     void sendJson();
     void sendJson2();
+    void sendPole();
     void readJson(QJsonDocument &document);
     void readJson2(QJsonDocument &document);
     //void threadFunc();
@@ -62,10 +65,12 @@ private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *networkManager;
     Images* pictures;
-    int pole[N][N];
+    //int pole[N][N];
+    shared_ptr<BaseMtrx<int>> pole;
     QImage* image;
     int left, top, width, height;
-    vector<Pole> pole_path;
+    //vector<Pole> pole_path;
+    vector<BaseMtrx<int>> pole_path;
     bool busy = false;
     mutex m1, m2, m3;
     unique_ptr<std::thread> t;

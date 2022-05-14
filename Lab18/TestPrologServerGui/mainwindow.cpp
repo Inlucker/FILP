@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "Matrix/BaseMtrx.hpp"
 //#include "windows.h"
 
 #include <QJsonDocument>
@@ -17,14 +18,14 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    pole_path = vector<Pole>();
+    //pole_path = vector<Pole>();
+    pole_path = vector<BaseMtrx<int>>();
 
     networkManager = new QNetworkAccessManager();
     // Подключаем networkManager к обработчику ответа
     connect(networkManager, &QNetworkAccessManager::finished, this, &MainWindow::onResult);
     // Получаем данные, а именно JSON файл с сайта по определённому url
-    //networkManager->get(QNetworkRequest(QUrl("http://localhost:3000/")));
+    networkManager->get(QNetworkRequest(QUrl("http://localhost:3000/")));
 
     pictures = new Images;
     pictures->load();
@@ -37,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     busy = false;
     t.release();
 
+    pole = make_shared<BaseMtrx<int>>(5, 5);
     resetPole();
     redraw();
 }
@@ -110,7 +112,8 @@ void MainWindow::readJson(QJsonDocument& document)
             ui->textEdit->append(QString::number(player.value("x").toInt()) + " " + QString::number(player.value("y").toInt()));
 
             //printPole();
-            pole_path.push_back(Pole(pole));
+            //pole_path.push_back(Pole(pole));
+            pole_path.push_back(BaseMtrx<int>(*pole));
         }
     }
 }
@@ -137,7 +140,7 @@ void MainWindow::onResult(QNetworkReply *reply)
         // То создаём объект Json Document, считав в него все данные из ответа
         QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
 
-        readJson2(document);
+        readJson(document);
     }
     reply->deleteLater();
     //busy = false;
@@ -146,43 +149,52 @@ void MainWindow::onResult(QNetworkReply *reply)
 
 void MainWindow::resetPole()
 {
-    for (int i = 0; i < N; i++)
+    pole->reset(-1);
+    /*for (int i = 0; i < N; i++)
         for (int j = 0; j < N; j++)
-            pole[i][j] = -1;
+            pole[i][j] = -1;*/
 }
 
 void MainWindow::printPole()
 {
-    for (int i = 0; i < N; i++)
+    /*for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < N; j++)
             cout << pole[j][i] << " ";
         cout << endl;
     }
-    cout << endl;
+    cout << endl;*/
+    cout << pole;
 }
 
 void MainWindow::setPlayer(int x, int y)
 {
-    pole[x][y] = -5;
+    //pole[x][y] = -5;
+    (*pole)(x, y) = -5;
 }
 
 void MainWindow::setPortal(int x, int y)
 {
-    pole[x][y] = -4;
+    //pole[x][y] = -4;
+    (*pole)(x, y) = -4;
 }
 
 void MainWindow::setWall(int x, int y, int n)
 {
-    if (n == 0)
+    /*if (n == 0)
         pole[x][y] = -2;
     else
-        pole[x][y] = n;
+        pole[x][y] = n;*/
+    if (n == 0)
+        (*pole)(x, y) = -2;
+    else
+        (*pole)(x, y) = n;
 }
 
 void MainWindow::setFinish(int x, int y)
 {
-    pole[x][y] = -3;
+    //pole[x][y] = -3;
+    (*pole)(x, y) = -3;
 }
 
 void MainWindow::redraw()
@@ -194,7 +206,8 @@ void MainWindow::redraw()
     for (int i = 0; i < N; i++)
         for (int j = 0; j < N; j++)
         {
-            painter.drawImage(i * cfx, j * cfy, pictures->getImage(pole[i][j]));
+            //painter.drawImage(i * cfx, j * cfy, pictures->getImage(pole[i][j]));
+            painter.drawImage(i * cfx, j * cfy, pictures->getImage((*pole)(i, j)));
         }
     this->update();
 }
@@ -211,6 +224,24 @@ void MainWindow::redraw(Pole &p)
             painter.drawImage(i * cfx, j * cfy, pictures->getImage(p(i, j)));
         }
     update(); //JUST DO NOT repaint() HERE :D
+}
+
+void MainWindow::redraw(BaseMtrx<int> &p)
+{
+    image->fill(0);
+    int w = p.getWidth();
+    int h = p.getHeight();
+    width = 36*(w);
+    height = 36*(h);
+    double cfx = 1.0 * 36; //width / SIZE;
+    double cfy = 1.0 * 36; //height / SIZE;
+    QPainter painter(image);
+    for (int i = 0; i < w; i++)
+        for (int j = 0; j < h; j++)
+        {
+            painter.drawImage(i * cfx, j * cfy, pictures->getImage(p(i, j)));
+        }
+    update();
 }
 
 void MainWindow::start()
@@ -267,6 +298,15 @@ void MainWindow::sendJson2()
     // QByteArray data("{\"key1\":\"value1\",\"key2\":\"value2\"}");
     QNetworkReply *reply = networkManager->post(request, data);
     qDebug() << "Request";
+}
+
+void MainWindow::sendPole()
+{
+    QJsonObject obj;
+    for (auto& elem : *pole)
+    {
+
+    }
 }
 
 /*void MainWindow::threadFunc()
