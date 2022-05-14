@@ -19,7 +19,36 @@ cell(X, Y, portal1):-cell(I, J, portal1), not(I=X), not(J=Y), update_pos(I, J)).
 cell(X, Y, finish):-update_pos(X, Y), assert2(finish()).
 */
 
-cell(0, 0, empty):-update_pos(0, 0).
+create_cell(X, Y, "player"):-	reset(X, Y).
+create_cell(X, Y, "empty"):-	assertz(cell(X, Y, empty):-update_pos(X, Y)).
+%create_portal_cell(X, Y, empty):-	assertz(cell(X, Y, portal):-).
+create_cell(X, Y, "block1"):-	assertz(cell(X, Y, block1):-fail).
+create_cell(X, Y, "block2"):-	assertz((cell(X, Y, block2):-turn(N), T = (N mod 2), T = 0, fail, !)),
+									assertz(cell(X, Y, block2):-update_pos(X, Y)).
+create_cell(X, Y, "block4"):-	assertz((cell(X, Y, block4):-turn(N), T = (N mod 4), T = 0, fail, !)),
+									assertz(cell(X, Y, block4):-update_pos(X, Y)).
+create_cell(X, Y, "finish"):-	assertz(update_pos(X, Y), assert2(finish())).	
+
+create_all_cells([]):-!.
+%create_all_cells([H|T]):-create_cell(H.x, H.y, H.cell), create_all_cells(T).
+create_all_cells([H|T]):-assertz(cell(H.x, H.y, H.cell)), create_all_cells(T).
+
+create_pole(Dict):-Pole = Dict.pole, create_all_cells(Pole).
+
+
+create_list([], List, List):-!.
+create_list([H|T], List, OldList):-	NewElem = json{x:H.x, y:H.y, cell:H.cell},
+									append(OldList, [NewElem], NewList),
+									create_list(T, List, NewList).
+
+%get_first([H|_], List):-NewElem = json{x:H.x, y:H.y, cell:H.cell}, List = [NewElem].
+
+%json_from_dict(Dict, Json):-Json = json{pole:[json{x:6, y:6, cell:"lol"}]}.
+%json_from_dict(Dict, Json):-Pole = Dict.pole, Json = json{pole:[json{x:6, y:6, cell:"lol"}]}.
+%json_from_dict(Dict, Json):-Pole = Dict.pole, get_first(Pole, List), Json = json{pole:List}.
+json_from_dict(Dict, Json):-Pole = Dict.pole, create_list(Pole, List, []), Json = json{pole:List}.
+
+/*cell(0, 0, empty):-update_pos(0, 0).
 cell(1, 0, empty):-update_pos(1, 0).
 cell(2, 0, empty):-update_pos(2, 0).
 cell(3, 0, empty):-update_pos(3, 0).
@@ -49,7 +78,7 @@ cell(0, 4, empty):-update_pos(0, 4).
 cell(1, 4, empty):-update_pos(1, 4).
 cell(2, 4, empty):-update_pos(2, 4).
 cell(3, 4, empty):-update_pos(3, 4).
-cell(4, 4, finish):-update_pos(4, 4), assert2(finish()).
+cell(4, 4, finish):-update_pos(4, 4), assert2(finish()).*/
 
 assert2(X):-asserta(X).
 assert2(X):-retract(X), fail.
@@ -138,8 +167,17 @@ my_func(Request):-
 	*/
 	
 my_func(Request):-
-	http_read_json(Request, Json),
-	reply_json(Json).
+	/*http_read_json(Request, Json),
+	reply_json(Json).*/
+	http_read_json_dict(Request, Dict),
+	%create_pole(Dict).
+	create_pole(Dict),
+	cell(0, 1, X),
+	reply_json(json{pole:[json{x:6, y:7, cell:X}]}).
+	/*json_from_dict(Dict, Json),
+	reply_json(Json).*/
+	%get_min(0, 1, Min), example(0, 1, 1, Min, Path),
+	%reply_json(json{pole:Path}).
 	
 server():-http_server(http_dispatch, [port(3000)]).
 
@@ -153,4 +191,5 @@ read_from_server_json(Json):-	http_open('http://localhost:3000/', In, []),
 								json_read(In, Json),
 								write(Json),
 								close(In).
+
 

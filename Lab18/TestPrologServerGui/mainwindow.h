@@ -59,6 +59,9 @@ private:
     void sendPole();
     void readJson(QJsonDocument &document);
     void readJson2(QJsonDocument &document);
+    void readJson3(QJsonDocument &document);
+
+    void usualSet();
     //void threadFunc();
 
 private:

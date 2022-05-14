@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Подключаем networkManager к обработчику ответа
     connect(networkManager, &QNetworkAccessManager::finished, this, &MainWindow::onResult);
     // Получаем данные, а именно JSON файл с сайта по определённому url
-    networkManager->get(QNetworkRequest(QUrl("http://localhost:3000/")));
+    //networkManager->get(QNetworkRequest(QUrl("http://localhost:3000/")));
 
     pictures = new Images;
     pictures->load();
@@ -40,6 +40,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     pole = make_shared<BaseMtrx<int>>(5, 5);
     resetPole();
+
+    usualSet();
+
     redraw();
 }
 
@@ -131,6 +134,40 @@ void MainWindow::readJson2(QJsonDocument &document)
     ui->textEdit->append(v2.toString( ));
 }
 
+void MainWindow::readJson3(QJsonDocument &document)
+{
+    // Забираем из документа корневой объект
+    QJsonObject root = document.object();
+    ui->textEdit->append(root.keys().at(0) + ": ");
+
+    QJsonValue path = root.value("pole");
+    // Если значение является массивом, ...
+    if (path.isArray())
+    {
+        // ... то забираем массив из данного свойства
+        QJsonArray jarray = path.toArray();
+        // Перебирая все элементы массива ...
+        for (int i = 0; i < jarray.count(); i++)
+        {
+            QJsonObject j_obj = jarray.at(i).toObject();
+            //HERE
+            ui->textEdit->append(QString::number(j_obj.value("x").toInt()) + " " +
+                                 QString::number(j_obj.value("y").toInt()) + " " +
+                                 j_obj.value("cell").toString());
+            cout << i << endl;
+        }
+    }
+}
+
+void MainWindow::usualSet()
+{
+    pole = make_shared<BaseMtrx<int>>(5, 5);
+    pole->reset(-1);
+    setPlayer(0, 1);
+    setWall(3, 2, 0);
+    setFinish(4, 4);
+}
+
 void MainWindow::onResult(QNetworkReply *reply)
 {
     qDebug() << "Reply2";
@@ -140,7 +177,8 @@ void MainWindow::onResult(QNetworkReply *reply)
         // То создаём объект Json Document, считав в него все данные из ответа
         QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
 
-        readJson(document);
+        //readJson(document);
+        readJson3(document);
     }
     reply->deleteLater();
     //busy = false;
@@ -302,11 +340,49 @@ void MainWindow::sendJson2()
 
 void MainWindow::sendPole()
 {
-    QJsonObject obj;
+    QJsonObject final_obj;
+    QJsonArray arr;
+    QString x_str("x");
+    QString y_str("y");
+    QString cell_str("cell");
+
+    int i = 0;
+    int j = 0;
+    int w = pole->getWidth();
+    int h = pole->getHeight();
     for (auto& elem : *pole)
     {
+        QJsonObject item_data;
 
+        item_data.insert(x_str, QJsonValue(i));
+        item_data.insert(y_str, QJsonValue(j++));
+        if (elem == -5)
+            item_data.insert(cell_str, QJsonValue("player"));
+        else if (elem == -3)
+            item_data.insert(cell_str, QJsonValue("finish"));
+        else if (elem == -2)
+            item_data.insert(cell_str, QJsonValue("block1"));
+        else
+            item_data.insert(cell_str, QJsonValue("empty"));
+
+        arr.push_back(QJsonValue(item_data));
+        if (j == w)
+        {
+            j = 0;
+            i++;
+        }
     }
+    final_obj.insert(QString("pole"), QJsonValue(arr));
+
+    const QUrl url(QStringLiteral("http://localhost:3000/"));
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonDocument doc(final_obj);
+    QByteArray data = doc.toJson();
+    // or
+    // QByteArray data("{\"key1\":\"value1\",\"key2\":\"value2\"}");
+    QNetworkReply *reply = networkManager->post(request, data);
+    qDebug() << "Request";
 }
 
 /*void MainWindow::threadFunc()
@@ -334,6 +410,6 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_sendJson_btn_clicked()
 {
-    sendJson();
+    sendPole();
 }
 
