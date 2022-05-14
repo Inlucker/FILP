@@ -373,8 +373,8 @@ void MainWindow::sendPole()
         }
     }
     final_obj.insert(QString("pole"), QJsonValue(arr));
-    //final_obj.insert(QString("width"), QJsonValue(w));
-    //final_obj.insert(QString("height"), QJsonValue(h));
+    final_obj.insert(QString("width"), QJsonValue(w));
+    final_obj.insert(QString("height"), QJsonValue(h));
 
     const QUrl url(QStringLiteral("http://localhost:3000/"));
     QNetworkRequest request(url);
