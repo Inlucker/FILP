@@ -19,21 +19,23 @@ cell(X, Y, portal1):-cell(I, J, portal1), not(I=X), not(J=Y), update_pos(I, J)).
 cell(X, Y, finish):-update_pos(X, Y), assert2(finish()).
 */
 
-create_cell(X, Y, "player"):-	reset(X, Y).
+create_cell(X, Y, "player"):-	assertz(cell(X, Y, empty):-update_pos(X, Y)), reset(X, Y).
 create_cell(X, Y, "empty"):-	assertz(cell(X, Y, empty):-update_pos(X, Y)).
 %create_portal_cell(X, Y, empty):-	assertz(cell(X, Y, portal):-).
 create_cell(X, Y, "block1"):-	assertz(cell(X, Y, block1):-fail).
 create_cell(X, Y, "block2"):-	assertz((cell(X, Y, block2):-turn(N), T = (N mod 2), T = 0, fail, !)),
-									assertz(cell(X, Y, block2):-update_pos(X, Y)).
+								assertz(cell(X, Y, block2):-update_pos(X, Y)).
 create_cell(X, Y, "block4"):-	assertz((cell(X, Y, block4):-turn(N), T = (N mod 4), T = 0, fail, !)),
-									assertz(cell(X, Y, block4):-update_pos(X, Y)).
-create_cell(X, Y, "finish"):-	assertz(update_pos(X, Y), assert2(finish())).	
+								assertz(cell(X, Y, block4):-update_pos(X, Y)).
+create_cell(X, Y, "finish"):-	assertz((cell(X, Y, finish):-update_pos(X, Y), assert2(finish()))).	
 
 create_all_cells([]):-!.
-%create_all_cells([H|T]):-create_cell(H.x, H.y, H.cell), create_all_cells(T).
-create_all_cells([H|T]):-assertz(cell(H.x, H.y, H.cell)), create_all_cells(T).
+create_all_cells([H|T]):-create_cell(H.x, H.y, H.cell), create_all_cells(T).
+%create_all_cells([H|T]):-assertz(cell(H.x, H.y, H.cell)), create_all_cells(T).
 
-create_pole(Dict):-Pole = Dict.pole, create_all_cells(Pole).
+create_pole(Dict):-	retractall(cell(_, _, _)),
+					Pole = Dict.pole,
+					create_all_cells(Pole).
 
 
 create_list([], List, List):-!.
@@ -125,8 +127,8 @@ update_min(M):-	retractall(min(_)),
 				asserta(min(M):-!).
 reset_finish():-retractall(finish()).
 
-winner(_, _):-	min(Min), turn(N), N > Min, !, fail. %Не ищем решения длинее найденых
-winner(Path, Path):-finish(), !,
+winner(_, _):-	min(Min), turn(N), NN is N-1, NN > Min, !, fail. %Не ищем решения длинее найденых
+winner(Path, Path):-finish(),
 					turn(N),
 					Res is N-1,
 					%format('Reached finish by ~w turns!!!\n\n', [Res]),
@@ -141,43 +143,33 @@ reset(X0, Y0):-	retractall(min(_)),
 				create_turn(),
 				create_pos(X0, Y0).
 				
-example(X0, Y0, Path, Res):-reset(X0, Y0), asserta(min(25):-!),
+example(X0, Y0, Path, Res):-reset(X0, Y0), update_min(25),
 							update_turn(),
 							get_pole(Pole0),
 							winner([Pole0], Path),
 							turn(N), Res is N-1.
+						
+get_min(X0, Y0, Min):-	reset(X0, Y0),
+						update_min(25),
+						findall(_, winner([], _), _), min(Min).
 
-
-%example(0, 1, Path, Res).
 %get_min(0, 1, Min).
-%min(X), example(0, 1, 0, X).
+%example(0, 1, Path, Res).
     
 :- http_handler(root(.), my_func, []).
 
 print_data(Data):-write(Data), nl.
 
-/*
-my_func(Request):-
-	http_read_jsont(Request, Json),
-    print_dict(Json),
-	%http_read_data(Request, Data, []),
-	%print_data(Data).
-	example(0, 1, Path, _),
-	reply_json(json{pole:Path}).
-	*/
+/*my_func(Request):-
+	http_read_json(Request, Json),
+	reply_json(Json).*/
 	
 my_func(Request):-
-	/*http_read_json(Request, Json),
-	reply_json(Json).*/
 	http_read_json_dict(Request, Dict),
-	%create_pole(Dict).
 	create_pole(Dict),
-	cell(0, 1, X),
-	reply_json(json{pole:[json{x:6, y:7, cell:X}]}).
-	/*json_from_dict(Dict, Json),
-	reply_json(Json).*/
-	%get_min(0, 1, Min), example(0, 1, 1, Min, Path),
-	%reply_json(json{pole:Path}).
+	get_min(0, 1, _),
+	example(0, 1, Path, _),
+	reply_json(json{pole:Path}).
 	
 server():-http_server(http_dispatch, [port(3000)]).
 
@@ -191,5 +183,6 @@ read_from_server_json(Json):-	http_open('http://localhost:3000/', In, []),
 								json_read(In, Json),
 								write(Json),
 								close(In).
+
 
 

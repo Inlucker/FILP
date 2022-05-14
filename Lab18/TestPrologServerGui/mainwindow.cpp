@@ -177,8 +177,8 @@ void MainWindow::onResult(QNetworkReply *reply)
         // То создаём объект Json Document, считав в него все данные из ответа
         QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
 
-        //readJson(document);
-        readJson3(document);
+        readJson(document);
+        //readJson3(document);
     }
     reply->deleteLater();
     //busy = false;
@@ -373,6 +373,8 @@ void MainWindow::sendPole()
         }
     }
     final_obj.insert(QString("pole"), QJsonValue(arr));
+    //final_obj.insert(QString("width"), QJsonValue(w));
+    //final_obj.insert(QString("height"), QJsonValue(h));
 
     const QUrl url(QStringLiteral("http://localhost:3000/"));
     QNetworkRequest request(url);
@@ -410,6 +412,7 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_sendJson_btn_clicked()
 {
+    usualSet();
     sendPole();
 }
 
