@@ -67,6 +67,7 @@ private:
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *networkManager;
+    string port = "1234";
     Images* pictures;
     //int pole[N][N];
     shared_ptr<BaseMtrx<int>> pole;

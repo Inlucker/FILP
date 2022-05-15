@@ -12,6 +12,7 @@
 #include <QPainter>
 #include <iostream>
 #include <unistd.h>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -164,25 +165,45 @@ void MainWindow::usualSet()
     pole = make_shared<BaseMtrx<int>>(5, 5);
     pole->reset(-1);
     setPlayer(0, 1);
+    //setPlayer(4, 3);
     setWall(3, 2, 0);
+    setWall(1, 2, 2);
+    setWall(3, 3, 4);
+    setPortal(2, 1);
+    setPortal(1, 3);
     setFinish(4, 4);
 }
 
 void MainWindow::onResult(QNetworkReply *reply)
 {
-    qDebug() << "Reply2";
-    // Если ошибки отсутсвуют
-    if (!reply->error())
+    try
     {
-        // То создаём объект Json Document, считав в него все данные из ответа
-        QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
+        // Если ошибки отсутсвуют
+        if (!reply->error())
+        {
+            qDebug() << "Reply";
+            // То создаём объект Json Document, считав в него все данные из ответа
+            QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
 
-        readJson(document);
-        //readJson3(document);
+            readJson(document);
+            //readJson3(document);
+        }
+        else
+        {
+            qDebug() << "Reply Error";
+        }
+        reply->deleteLater();
+        //busy = false;
+        start();
     }
-    reply->deleteLater();
-    //busy = false;
-    start();
+    catch (BaseError& er)
+    {
+        QMessageBox::information(this, "Error", er.what());
+    }
+    catch (...)
+    {
+        QMessageBox::information(this, "Error", "Unexpected Error");
+    }
 }
 
 void MainWindow::resetPole()
@@ -302,7 +323,8 @@ void MainWindow::start()
 
 void MainWindow::sendJson()
 {
-    QNetworkRequest request(QUrl("http://localhost:3000/"));
+    string url_str = "http://localhost:" + port + "/";
+    QNetworkRequest request(QUrl(QString::fromStdString(url_str)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     QJsonObject json;
     json.insert("item1", "value1");
@@ -317,7 +339,9 @@ void MainWindow::sendJson()
 void MainWindow::sendJson2()
 {
     //QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
-    const QUrl url(QStringLiteral("http://localhost:3000/"));
+    //const QUrl url(QStringLiteral("http://localhost:3000/"));
+    string url_str = "http://localhost:" + port + "/";
+    const QUrl url = QUrl(QString::fromStdString(url_str));
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
@@ -356,14 +380,38 @@ void MainWindow::sendPole()
 
         item_data.insert(x_str, QJsonValue(i));
         item_data.insert(y_str, QJsonValue(j++));
-        if (elem == -5)
+        switch (elem)
+        {
+        case -5:
+            item_data.insert(cell_str, QJsonValue("player"));
+            break;
+        case -3:
+            item_data.insert(cell_str, QJsonValue("finish"));
+            break;
+        case -2:
+            item_data.insert(cell_str, QJsonValue("block1"));
+            break;
+        case -4:
+            item_data.insert(cell_str, QJsonValue("portal"));
+            break;
+        case 2:
+            item_data.insert(cell_str, QJsonValue("block2"));
+            break;
+        case 4:
+            item_data.insert(cell_str, QJsonValue("block4"));
+            break;
+        default:
+            item_data.insert(cell_str, QJsonValue("empty"));
+            break;
+        }
+        /*if (elem == -5)
             item_data.insert(cell_str, QJsonValue("player"));
         else if (elem == -3)
             item_data.insert(cell_str, QJsonValue("finish"));
         else if (elem == -2)
             item_data.insert(cell_str, QJsonValue("block1"));
         else
-            item_data.insert(cell_str, QJsonValue("empty"));
+            item_data.insert(cell_str, QJsonValue("empty"));*/
 
         arr.push_back(QJsonValue(item_data));
         if (j == w)
@@ -376,7 +424,9 @@ void MainWindow::sendPole()
     final_obj.insert(QString("width"), QJsonValue(w));
     final_obj.insert(QString("height"), QJsonValue(h));
 
-    const QUrl url(QStringLiteral("http://localhost:3000/"));
+    //const QUrl url(QStringLiteral("http://localhost:3000/"));
+    string url_str = "http://localhost:" + port + "/";
+    const QUrl url = QUrl(QString::fromStdString(url_str));
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     QJsonDocument doc(final_obj);
