@@ -34,7 +34,8 @@ MainWindow::MainWindow(QWidget *parent)
     top = 18;
     width = 36*(N);
     height = 36*(N);
-    image = new QImage(width, height, QImage::Format_ARGB32);
+    image = make_shared<QImage>(width, height, QImage::Format_ARGB32);
+    //image = new QImage(width, height, QImage::Format_ARGB32);
 
     busy = false;
     t.release();
@@ -52,7 +53,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete networkManager;
     delete pictures;
-    delete image;
+    //delete image;
     t.release();
 }
 
@@ -115,7 +116,7 @@ void MainWindow::readJson(QJsonDocument& document)
             ui->textEdit->append(jpole.keys().at(1) + ": ");
             QJsonObject player = jpole.value("player").toObject();
             setPlayer(player.value("x").toInt(), player.value("y").toInt());
-            ui->textEdit->append(QString::number(player.value("x").toInt()) + " " + QString::number(player.value("y").toInt()));
+            ui->textEdit->append(QString::number(player.value("x").toInt()) + " " + QString::number(player.value("y").toInt()) + "\n");
 
             //printPole();
             //pole_path.push_back(Pole(pole));
@@ -164,7 +165,11 @@ void MainWindow::readJson3(QJsonDocument &document)
 
 void MainWindow::usualSet()
 {
-    pole = make_shared<BaseMtrx<int>>(5, 5);
+    int n = 5;
+    pole = make_shared<BaseMtrx<int>>(n, n);
+    width = 36*(n);
+    height = 36*(n);
+    image = make_shared<QImage>(width, height, QImage::Format_ARGB32);
     pole->reset(-1);
     setPlayer(0, 1);
     //setPlayer(4, 3);
@@ -174,6 +179,24 @@ void MainWindow::usualSet()
     setPortal(2, 1);
     setPortal(1, 3);
     setFinish(4, 4);
+}
+
+void MainWindow::usualSet2()
+{
+    int n = 4;
+    pole = make_shared<BaseMtrx<int>>(n, n);
+    width = 36*(n);
+    height = 36*(n);
+    image = make_shared<QImage>(width, height, QImage::Format_ARGB32);
+    pole->reset(-1);
+    setPlayer(0, 1);
+    //setPlayer(4, 3);
+    setWall(3, 2, 0);
+    setWall(1, 2, 2);
+    //setWall(3, 3, 4);
+    setPortal(2, 1);
+    setPortal(1, 3);
+    setFinish(0, 2);
 }
 
 void MainWindow::onResult(QNetworkReply *reply)
@@ -261,11 +284,15 @@ void MainWindow::setFinish(int x, int y)
 void MainWindow::redraw()
 {
     image->fill(0);
-    QPainter painter(image);
-    double cfx = 1.0 * width / SIZE;
-    double cfy = 1.0 * height / SIZE;
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < N; j++)
+    int w = pole->getWidth();
+    int h = pole->getHeight();
+    //width = 36*(w);
+    //height = 36*(h);
+    double cfx = 1.0 * 36;
+    double cfy = 1.0 * 36;
+    QPainter painter(image.get());
+    for (int i = 0; i < w; i++)
+        for (int j = 0; j < h; j++)
         {
             //painter.drawImage(i * cfx, j * cfy, pictures->getImage(pole[i][j]));
             painter.drawImage(i * cfx, j * cfy, pictures->getImage((*pole)(i, j)));
@@ -276,11 +303,15 @@ void MainWindow::redraw()
 void MainWindow::redraw(Pole &p)
 {
     image->fill(0);
-    double cfx = 1.0 * width / SIZE;
-    double cfy = 1.0 * height / SIZE;
-    QPainter painter(image);
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < N; j++)
+    int w = pole->getWidth();
+    int h = pole->getHeight();
+    //width = 36*(w);
+    //height = 36*(h);
+    double cfx = 1.0 * 36;
+    double cfy = 1.0 * 36;
+    QPainter painter(image.get());
+    for (int i = 0; i < w; i++)
+        for (int j = 0; j < h; j++)
         {
             painter.drawImage(i * cfx, j * cfy, pictures->getImage(p(i, j)));
         }
@@ -292,11 +323,11 @@ void MainWindow::redraw(BaseMtrx<int> &p)
     image->fill(0);
     int w = p.getWidth();
     int h = p.getHeight();
-    width = 36*(w);
-    height = 36*(h);
+    //width = 36*(w);
+    //height = 36*(h);
     double cfx = 1.0 * 36; //width / SIZE;
     double cfy = 1.0 * 36; //height / SIZE;
-    QPainter painter(image);
+    QPainter painter(image.get());
     for (int i = 0; i < w; i++)
         for (int j = 0; j < h; j++)
         {
@@ -315,7 +346,8 @@ void MainWindow::start()
         {
             for (auto& p : pole_path)
             {
-                this_thread::sleep_for(chrono::seconds(1));
+                //this_thread::sleep_for(chrono::seconds(1));
+                this_thread::sleep_for(chrono::milliseconds(500));
                 redraw(p);
             }
             busy = false;

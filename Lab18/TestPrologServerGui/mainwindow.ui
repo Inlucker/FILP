@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>489</width>
-    <height>335</height>
+    <width>733</width>
+    <height>503</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,19 +17,19 @@
    <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>460</x>
       <y>10</y>
       <width>261</width>
-      <height>191</height>
+      <height>261</height>
      </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>210</y>
-      <width>191</width>
+      <x>460</x>
+      <y>350</y>
+      <width>261</width>
       <height>61</height>
      </rect>
     </property>
@@ -45,8 +45,8 @@
    <widget class="QPushButton" name="sendJson_btn">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>210</y>
+      <x>460</x>
+      <y>280</y>
       <width>261</width>
       <height>61</height>
      </rect>
@@ -66,8 +66,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>489</width>
-     <height>20</height>
+     <width>733</width>
+     <height>25</height>
     </rect>
    </property>
   </widget>

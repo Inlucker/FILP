@@ -26,6 +26,8 @@ moved_to_cell(cell(_, _, block2)):-turn(N), T is ((N+1) mod 2), T = 0, !, fail.
 moved_to_cell(cell(X, Y, block2)):-update_pos(X, Y).
 moved_to_cell(cell(_, _, block4)):-turn(N), T is ((N+1) mod 4), T = 0, !, fail.
 moved_to_cell(cell(X, Y, block4)):-update_pos(X, Y).
+%moved_to_cell(cell(_, _, block(B))):-turn(N), T is ((N+1) mod B), T = 0, !, fail.
+%moved_to_cell(cell(X, Y, block(_))):-update_pos(X, Y).
 moved_to_cell(cell(X, Y, portal)):-cell(I, J, portal), not(I=X), not(J=Y), update_pos(I, J).
 moved_to_cell(cell(X, Y, finish)):-update_pos(X, Y), assert2(finish()).
 
@@ -97,7 +99,7 @@ cell(2, 4, empty):-update_pos(2, 4).
 cell(3, 4, empty):-update_pos(3, 4).
 cell(4, 4, finish):-update_pos(4, 4), assert2(finish()).*/
 
-get_blocks_old(N, Blocks):-	T4 is (N mod 4), T4 = 0, T2 is (N mod 2), T2 = 0,
+/*get_blocks_old(N, Blocks):-	T4 is (N mod 4), T4 = 0, T2 is (N mod 2), T2 = 0,
 						B1=json{x:3, y:2, n:0}, B2=json{x:1, y:2, n:0}, B4=json{x:3, y:3, n:0},
 						Blocks = [B1, B2, B4], !.
 get_blocks_old(N, Blocks):-	T2 is (N mod 2), T2 = 0, T4 is 4-(N mod 4),
@@ -113,7 +115,7 @@ get_pole_old(Pole):-%Pole =json{empty:0}.
 				get_blocks_old(N, Blocks),
 				get_portals_old(Portals),
 				get_finish_old(Finish),
-				Pole = json{player:json{x:X, y:Y}, walls:Blocks, portals:Portals, finish:Finish}.
+				Pole = json{player:json{x:X, y:Y}, walls:Blocks, portals:Portals, finish:Finish}.*/
 
 /*get_player(Player):-	pos(X, Y),
 						Player = json{x:X, y:Y}.
@@ -185,8 +187,8 @@ get_path(Path):-get_pole(Pole0),
 	
 my_func(Request):-
 	http_read_json_dict(Request, Dict),
-	%gtrace,
 	create_pole(Dict),
+	%gtrace,
 	get_path(Path),
 	reply_json(json{pole:Path}).
 	

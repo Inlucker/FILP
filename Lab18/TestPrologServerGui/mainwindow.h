@@ -62,6 +62,7 @@ private:
     void readJson3(QJsonDocument &document);
 
     void usualSet();
+    void usualSet2();
     //void threadFunc();
 
 private:
@@ -71,7 +72,7 @@ private:
     Images* pictures;
     //int pole[N][N];
     shared_ptr<BaseMtrx<int>> pole;
-    QImage* image;
+    shared_ptr<QImage> image;
     int left, top, width, height;
     //vector<Pole> pole_path;
     vector<BaseMtrx<int>> pole_path;
