@@ -42,6 +42,14 @@ private slots:
 
     void on_sendJson_btn_clicked();
 
+    void on_set_usual_btn_clicked();
+
+    void on_set_usual_btn_2_clicked();
+
+    void on_set_usual_btn_3_clicked();
+
+    void on_set_usual_btn_4_clicked();
+
 private:
     void resetPole();
     void printPole();
@@ -63,6 +71,8 @@ private:
 
     void usualSet();
     void usualSet2();
+    void usualSet3();
+    void usualSet4();
     //void threadFunc();
 
 private:

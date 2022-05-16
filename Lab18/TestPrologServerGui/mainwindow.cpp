@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
     pole = make_shared<BaseMtrx<int>>(5, 5);
     resetPole();
 
-    usualSet();
+    usualSet3();
 
     redraw();
 }
@@ -66,6 +66,7 @@ void MainWindow::paintEvent(QPaintEvent *pEvent)
 
 void MainWindow::readJson(QJsonDocument& document)
 {
+    pole_path.clear();
     // Забираем из документа корневой объект
     QJsonObject root = document.object();
     ui->textEdit->append(root.keys().at(0) + ": ");
@@ -183,7 +184,7 @@ void MainWindow::usualSet()
 
 void MainWindow::usualSet2()
 {
-    int n = 4;
+    int n = 3;
     pole = make_shared<BaseMtrx<int>>(n, n);
     width = 36*(n);
     height = 36*(n);
@@ -191,12 +192,37 @@ void MainWindow::usualSet2()
     pole->reset(-1);
     setPlayer(0, 1);
     //setPlayer(4, 3);
-    setWall(3, 2, 0);
-    setWall(1, 2, 2);
+    //setWall(3, 2, 0);
+    //setWall(1, 2, 2);
     //setWall(3, 3, 4);
-    setPortal(2, 1);
-    setPortal(1, 3);
+    //setPortal(2, 1);
+    //setPortal(1, 3);
+    //setFinish(2, 2);
     setFinish(0, 2);
+    //setFinish(4, 4);
+}
+
+void MainWindow::usualSet3()
+{
+    int n = 2;
+    pole = make_shared<BaseMtrx<int>>(n, n);
+    width = 36*(n);
+    height = 36*(n);
+    image = make_shared<QImage>(width, height, QImage::Format_ARGB32);
+    pole->reset(-1);
+    setPlayer(0, 0);
+    setFinish(1, 0);
+}
+
+void MainWindow::usualSet4()
+{int n = 2;
+    pole = make_shared<BaseMtrx<int>>(n, n);
+    width = 36*(n);
+    height = 36*(n);
+    image = make_shared<QImage>(width, height, QImage::Format_ARGB32);
+    pole->reset(-1);
+    setPlayer(0, 0);
+    setFinish(0, 1);
 }
 
 void MainWindow::onResult(QNetworkReply *reply)
@@ -500,7 +526,35 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_sendJson_btn_clicked()
 {
-    usualSet();
+    //usualSet3();
     sendPole();
+}
+
+
+void MainWindow::on_set_usual_btn_clicked()
+{
+    usualSet();
+    redraw();
+}
+
+
+void MainWindow::on_set_usual_btn_2_clicked()
+{
+    usualSet2();
+    redraw();
+}
+
+
+void MainWindow::on_set_usual_btn_3_clicked()
+{
+    usualSet3();
+    redraw();
+}
+
+
+void MainWindow::on_set_usual_btn_4_clicked()
+{
+    usualSet4();
+    redraw();
 }
 
