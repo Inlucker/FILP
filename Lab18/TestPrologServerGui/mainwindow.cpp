@@ -83,7 +83,7 @@ void MainWindow::readJson(QJsonDocument& document)
             QJsonObject jpole = jarray.at(i).toObject();
 
             //portals
-            ui->textEdit->append(jpole.keys().at(1) + ": ");
+            ui->textEdit->append(jpole.keys().at(2) + ": ");
             QJsonArray portals = jpole.value("portals").toArray();
             for (int j = 0; j < portals.count(); j++)
             {
@@ -100,17 +100,19 @@ void MainWindow::readJson(QJsonDocument& document)
 
 
             //walls
-            ui->textEdit->append(jpole.keys().at(2) + ": ");
+            ui->textEdit->append(jpole.keys().at(3) + ": ");
             QJsonArray walls = jpole.value("walls").toArray();
             for (int j = 0; j < walls.count(); j++)
             {
                  QJsonObject wall = walls.at(j).toObject();
                  setWall(wall.value("x").toInt(), wall.value("y").toInt(), wall.value("n").toInt());
-                 ui->textEdit->append(QString::number(wall.value("x").toInt()) + " " + QString::number(wall.value("y").toInt()));
+                 ui->textEdit->append(QString::number(wall.value("x").toInt()) + " " +
+                                      QString::number(wall.value("y").toInt()) + " " +
+                                      QString::number(wall.value("n").toInt()));
             }
 
             //player
-            ui->textEdit->append(jpole.keys().at(0) + ": ");
+            ui->textEdit->append(jpole.keys().at(1) + ": ");
             QJsonObject player = jpole.value("player").toObject();
             setPlayer(player.value("x").toInt(), player.value("y").toInt());
             ui->textEdit->append(QString::number(player.value("x").toInt()) + " " + QString::number(player.value("y").toInt()));
@@ -394,14 +396,18 @@ void MainWindow::sendPole()
         case -4:
             item_data.insert(cell_str, QJsonValue("portal"));
             break;
-        case 2:
+        case -1:
+            item_data.insert(cell_str, QJsonValue("empty"));
+            break;
+        /*case 2:
             item_data.insert(cell_str, QJsonValue("block2"));
             break;
         case 4:
             item_data.insert(cell_str, QJsonValue("block4"));
-            break;
+            break;*/
         default:
-            item_data.insert(cell_str, QJsonValue("empty"));
+            string str = "block" + to_string(elem);
+            item_data.insert(cell_str, QJsonValue(QString::fromStdString(str)));
             break;
         }
         /*if (elem == -5)

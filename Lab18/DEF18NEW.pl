@@ -22,9 +22,9 @@ cell(X, Y, finish):-update_pos(X, Y), assert2(finish()).
 
 moved_to_cell(cell(X, Y, empty)):-update_pos(X, Y).
 moved_to_cell(cell(_, _, block1)):-fail.
-moved_to_cell(cell(_, _, block2)):-turn(N), T = (N mod 2), T = 0, fail, !.
+moved_to_cell(cell(_, _, block2)):-turn(N), T is ((N+1) mod 2), T = 0, !, fail.
 moved_to_cell(cell(X, Y, block2)):-update_pos(X, Y).
-moved_to_cell(cell(_, _, block4)):-turn(N), T = (N mod 4), T = 0, fail, !.
+moved_to_cell(cell(_, _, block4)):-turn(N), T is ((N+1) mod 4), T = 0, !, fail.
 moved_to_cell(cell(X, Y, block4)):-update_pos(X, Y).
 moved_to_cell(cell(X, Y, portal)):-cell(I, J, portal), not(I=X), not(J=Y), update_pos(I, J).
 moved_to_cell(cell(X, Y, finish)):-update_pos(X, Y), assert2(finish()).
@@ -50,9 +50,9 @@ create_cell(X, Y, "player"):-	assertz(cell(X, Y, empty)), reset(X, Y).
 create_cell(X, Y, "empty"):-	assertz(cell(X, Y, empty)).
 create_cell(X, Y, "portal"):-	assertz(cell(X, Y, portal)).
 create_cell(X, Y, "block1"):-	assertz(cell(X, Y, block1)).
-create_cell(X, Y, "block2"):-	assertz(cell(X, Y, block2)),
+create_cell(X, Y, "block2"):-	%assertz(cell(X, Y, block2)),
 								assertz(cell(X, Y, block2)).
-create_cell(X, Y, "block4"):-	assertz(cell(X, Y, block4)),
+create_cell(X, Y, "block4"):-	%assertz(cell(X, Y, block4)),
 								assertz(cell(X, Y, block4)).
 create_cell(X, Y, "finish"):-	assertz(cell(X, Y, finish)).
 
@@ -134,9 +134,9 @@ get_pole(Pole):-get_player(Player),
 get_player(Player):-	pos(X, Y),
 						Player = json{x:X, y:Y}.
 get_blocks1(Blocks):-	findall(json{x:X, y:Y, n:0}, cell(X, Y, block1), Blocks).
-get_blocks2(N, Blocks):-T is N mod 2,
+get_blocks2(N, Blocks):-T is (2-N) mod 2,
 						findall(json{x:X, y:Y, n:T}, cell(X, Y, block2), Blocks).
-get_blocks4(N, Blocks):-T is N mod 4,
+get_blocks4(N, Blocks):-T is (4-N) mod 4,
 						findall(json{x:X, y:Y, n:T}, cell(X, Y, block4), Blocks).
 get_finish(Finish):-	cell(X, Y, finish),
 						Finish = json{x:X, y:Y}.
