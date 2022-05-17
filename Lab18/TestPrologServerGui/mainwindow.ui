@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>861</width>
-    <height>678</height>
+    <height>717</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,8 +27,8 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>480</y>
+      <x>590</x>
+      <y>620</y>
       <width>261</width>
       <height>61</height>
      </rect>
@@ -63,9 +63,9 @@
    <widget class="QPushButton" name="set_usual_btn">
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>340</y>
-      <width>271</width>
+      <x>320</x>
+      <y>480</y>
+      <width>261</width>
       <height>61</height>
      </rect>
     </property>
@@ -81,9 +81,9 @@
    <widget class="QPushButton" name="set_usual_btn_2">
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>410</y>
-      <width>271</width>
+      <x>320</x>
+      <y>550</y>
+      <width>261</width>
       <height>61</height>
      </rect>
     </property>
@@ -101,7 +101,7 @@
      <rect>
       <x>590</x>
       <y>480</y>
-      <width>271</width>
+      <width>261</width>
       <height>61</height>
      </rect>
     </property>
@@ -119,7 +119,7 @@
      <rect>
       <x>590</x>
       <y>550</y>
-      <width>271</width>
+      <width>261</width>
       <height>61</height>
      </rect>
     </property>
@@ -135,9 +135,9 @@
    <widget class="QPushButton" name="setup_pole_window_btn">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>550</y>
-      <width>281</width>
+      <x>590</x>
+      <y>340</y>
+      <width>261</width>
       <height>61</height>
      </rect>
     </property>
@@ -148,6 +148,27 @@
     </property>
     <property name="text">
      <string>SetupPole</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>410</y>
+      <width>261</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
+    </property>
+    <property name="minimum">
+     <number>2</number>
+    </property>
+    <property name="maximum">
+     <number>10</number>
     </property>
    </widget>
   </widget>

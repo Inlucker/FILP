@@ -78,6 +78,8 @@ private:
     void usualSet4();
     //void threadFunc();
 
+    void updateSize(int n);
+
 private slots:
     void redrawSlot();
 

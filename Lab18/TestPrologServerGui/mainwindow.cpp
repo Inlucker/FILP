@@ -222,7 +222,8 @@ void MainWindow::usualSet3()
 }
 
 void MainWindow::usualSet4()
-{int n = 2;
+{
+    int n = 2;
     pole = make_shared<BaseMtrx<int>>(n, n);
     my_width = 36*(n);
     my_height = 36*(n);
@@ -230,6 +231,15 @@ void MainWindow::usualSet4()
     pole->reset(-1);
     setPlayer(0, 0);
     setFinish(0, 1);
+}
+
+void MainWindow::updateSize(int n)
+{
+    pole = make_shared<BaseMtrx<int>>(n, n);
+    my_width = 36*(n);
+    my_height = 36*(n);
+    image = make_shared<QImage>(my_width, my_height, QImage::Format_ARGB32);
+    pole->reset(-1);
 }
 
 void MainWindow::redrawSlot()
@@ -586,6 +596,9 @@ void MainWindow::on_set_usual_btn_4_clicked()
 void MainWindow::on_setup_pole_window_btn_clicked()
 {
     //setup_pole_window = make_unique<SetupPoleWindow>(this, 5, 5);
+    int n = ui->spinBox->value();
+    updateSize(n);
+    redraw();
     setup_pole_window->setPole(pole);
     setup_pole_window->show();
     setup_pole_window->activateWindow();
