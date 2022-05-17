@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
     pole = make_shared<BaseMtrx<int>>(5, 5);
     resetPole();
 
-    usualSet3();
+    usualSet();
 
     redraw();
 }
@@ -76,6 +76,7 @@ void MainWindow::readJson(QJsonDocument& document)
     if (path.isArray())
     {
         resetPole();
+        ui->textEdit->clear();
         // ... то забираем массив из данного свойства
         QJsonArray jarray = path.toArray();
         // Перебирая все элементы массива ...

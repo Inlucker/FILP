@@ -37,8 +37,12 @@ assert2(X):-retract(X), fail.
 assertz2(X):-assertz(X).
 assertz2(X):-retract(X), fail.
 
-create_turn():-retractall(turn(_)), asserta(turn(0)).
-create_pos(X, Y):-retractall(pos(_, _)), asserta(pos(X, Y)).
+create_turn():-	retractall(turn(_)),
+				retractall(starting_turn(_)),
+				asserta(starting_turn(0)).
+create_pos(X, Y):-	retractall(pos(_, _)),
+					retractall(starting_pos(_, _)),
+					asserta(starting_pos(X, Y)).
 
 update_turn():-turn(N), NN is N+1, assert2(turn(NN):-!).
 update_pos(X, Y):-assert2(pos(X, Y):-!), update_turn().
@@ -51,6 +55,20 @@ reset(X0, Y0):-	retractall(pole(_)),
 				create_turn(),
 				create_pos(X0, Y0).
 reset_finish():-retractall(finish()).
+reset_all():-	retractall(cell(_, _, _)),
+				retractall(pole(_)),
+				retractall(min(_)),
+				retractall(finish()),
+				retractall(turn(_)),
+				retractall(pos(_)).
+
+setup():-	reset_finish(),
+			retractall(pole(_)),
+			retractall(turn(_)),
+			starting_pos(X0, Y0),
+			assert2(pos(X0, Y0):-!),
+			starting_turn(N),
+			assert2(turn(N):-!).
 
 create_cell(X, Y, "player"):-	assertz(cell(X, Y, empty)), reset(X, Y).
 create_cell(X, Y, "empty"):-	assertz(cell(X, Y, empty)).
@@ -105,45 +123,58 @@ assert2_pole():-get_player(Player),
 
 find_path(Path):-findall(Pole, pole(Pole), Path).
 
-move():-reset_finish(), pos(X, Y), NX is X+1, cell(NX, Y, Cell), moved_to_cell(cell(NX, Y, Cell)),
+move():-reset_finish(),
+		pos(X, Y),
+		NX is X+1,
+		cell(NX, Y, Cell),
+		moved_to_cell(cell(NX, Y, Cell)),
 		assert2_pole().
-			%pos(X2, Y2), format('Moved right, pos=[~w;~w]\n', [X2, Y2]),
-			%get_pole(Move).
-move():-reset_finish(), pos(X, Y), NY is Y+1, cell(X, NY, Cell), moved_to_cell(cell(X, NY, Cell)),
+move():-reset_finish(),
+		pos(X, Y),
+		NY is Y+1,
+		cell(X, NY, Cell),
+		moved_to_cell(cell(X, NY, Cell)),
 		assert2_pole().
-			%pos(X2, Y2), format('Moved down, pos=[~w;~w]\n', [X2, Y2]),
-			%get_pole(Move).
-move():-reset_finish(), pos(X, Y), NX is X-1, cell(NX, Y, Cell), moved_to_cell(cell(NX, Y, Cell)),
+move():-reset_finish(),
+		pos(X, Y), NX is X-1,
+		cell(NX, Y, Cell),
+		moved_to_cell(cell(NX, Y, Cell)),
 		assert2_pole().
-			%pos(X2, Y2), format('Moved left, pos=[~w;~w]\n', [X2, Y2]),
-			%get_pole(Move).
-move():-reset_finish(), pos(X, Y), NY is Y-1, cell(X, NY, Cell), moved_to_cell(cell(X, NY, Cell)),
+move():-reset_finish(),
+		pos(X, Y),
+		NY is Y-1,
+		cell(X, NY, Cell),
+		moved_to_cell(cell(X, NY, Cell)),
 		assert2_pole().
-			%pos(X2, Y2), format('Moved up, pos=[~w;~w]\n', [X2, Y2]),
-			%get_pole(Move).
 
 winner(_):-	min(Min), turn(N), NN is N-1, NN > Min, !, fail. %Не ищем решения длинее найденых
-winner(Path):-	finish(),
+winner(Path):-	finish(), !,
 				find_path(Path),
 				turn(N),
-				%Res is N-1,
-				%format('Reached finish by ~w turns!!!\n\n', [Res]),
 				update_min(N).
-winner(FullPath):-	%turn(N), format('Turn ~w: ', [N]),
-					move(),
-					%append(Path, [Move], NewPath),
+winner(FullPath):-	move(),
 					winner(FullPath).
-				
-get_path(Path):-assert2_pole(),
-				winner(Path).
+
+get_path(FullPath):-setup(),
+					assert2_pole(),
+					winner(FullPath).
+
+get_min(Min):-	findall(Path, get_path(Path), _),
+				min(Min).
+
+get_min_path(Path):-get_min(_),
+					get_path(Path).
     
 :- http_handler(root(.), my_func, []).
 	
 my_func(Request):-
+	reset_all(),
 	http_read_json_dict(Request, Dict),
 	create_pole(Dict),
 	%gtrace,
+	%get_min(_),
 	get_path(Path),
+	%get_min_path(Path), %doesn't work with 3x3 example, updated min to infinity
 	reply_json(json{pole:Path}).
 	
 server():-http_server(http_dispatch, [port(1234)]).
