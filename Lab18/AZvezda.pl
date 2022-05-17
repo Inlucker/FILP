@@ -1,4 +1,6 @@
-%Azvezda prolog
+/*----------------*/
+/* Azvezda prolog */
+/*----------------*/
 
 /* Получаем состояние поля с игрком в координате X, Y, в ход N */
 get_blocks1(Blocks):-
@@ -136,17 +138,18 @@ while_queue_is_not_empty([H|T]):-
     append5(T, Right, Down, Left, Up, NewQueue),
     while_queue_is_not_empty(NewQueue).
 
+% Алгоритм A*
 azvezda():-
     %setup(), не нужно?
     setup_queue(Queue), % подготавливаем очередь
     while_queue_is_not_empty(Queue). %запускаем цикл пока очередь не опустеет
-    %Нужно сохрнаить здесь результат
-    %reset_fields().
 
+% Получаем кратчайший путь
 get_min_path(Path):-
     azvezda(),
     cell(X, Y, finish),
-    field(X, Y, _, Path).
+    field(X, Y, _, Path),
+    reset_fields().
 
 /* Для дебага */
 
