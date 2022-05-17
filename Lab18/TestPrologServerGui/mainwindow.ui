@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>733</width>
-    <height>620</height>
+    <width>861</width>
+    <height>678</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>10</y>
+      <x>590</x>
+      <y>0</y>
       <width>261</width>
       <height>261</height>
      </rect>
@@ -27,8 +27,8 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>350</y>
+      <x>310</x>
+      <y>480</y>
       <width>261</width>
       <height>61</height>
      </rect>
@@ -45,8 +45,8 @@
    <widget class="QPushButton" name="sendJson_btn">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>280</y>
+      <x>590</x>
+      <y>270</y>
       <width>261</width>
       <height>61</height>
      </rect>
@@ -63,8 +63,8 @@
    <widget class="QPushButton" name="set_usual_btn">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>280</y>
+      <x>590</x>
+      <y>340</y>
       <width>271</width>
       <height>61</height>
      </rect>
@@ -81,8 +81,8 @@
    <widget class="QPushButton" name="set_usual_btn_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>350</y>
+      <x>590</x>
+      <y>410</y>
       <width>271</width>
       <height>61</height>
      </rect>
@@ -99,8 +99,8 @@
    <widget class="QPushButton" name="set_usual_btn_3">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>420</y>
+      <x>590</x>
+      <y>480</y>
       <width>271</width>
       <height>61</height>
      </rect>
@@ -117,8 +117,8 @@
    <widget class="QPushButton" name="set_usual_btn_4">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>490</y>
+      <x>590</x>
+      <y>550</y>
       <width>271</width>
       <height>61</height>
      </rect>
@@ -132,13 +132,31 @@
      <string>SetUsual4</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="setup_pole_window_btn">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>550</y>
+      <width>281</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>36</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>SetupPole</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>733</width>
+     <width>861</width>
      <height>25</height>
     </rect>
    </property>

@@ -16,5 +16,15 @@ QImage& Images::getImage(const int& imgNumber)
 	QMap<int, QImage>::iterator i = images.find(imgNumber);
 	if (i == images.end())
 		throw 1;
-	return i.value();
+    return i.value();
+}
+
+Images::Images(const Images &imgs)
+{
+    this->images = imgs.images;
+}
+
+Images &Images::operator =(const Images &imgs)
+{
+    this->images = imgs.images;
 }

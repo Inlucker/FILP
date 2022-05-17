@@ -4,6 +4,7 @@
 #include "images.h"
 #include "pole.h"
 #include "Matrix/BaseMtrx.h"
+#include "SetupPoleWindow.h"
 
 #include <QMainWindow>
 #include <QNetworkAccessManager>
@@ -50,6 +51,8 @@ private slots:
 
     void on_set_usual_btn_4_clicked();
 
+    void on_setup_pole_window_btn_clicked();
+
 private:
     void resetPole();
     void printPole();
@@ -79,16 +82,17 @@ private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *networkManager;
     string port = "1234";
-    Images* pictures;
+    shared_ptr<Images> pictures;
     //int pole[N][N];
     shared_ptr<BaseMtrx<int>> pole;
     shared_ptr<QImage> image;
-    int left, top, width, height;
+    int left, top, my_width, my_height;
     //vector<Pole> pole_path;
     vector<BaseMtrx<int>> pole_path;
     bool busy = false;
     mutex m1, m2, m3;
     unique_ptr<std::thread> t;
-    std::vector<std::exception_ptr>  g_exceptions;
+
+    unique_ptr<SetupPoleWindow> setup_pole_window;
 };
 #endif // MAINWINDOW_H

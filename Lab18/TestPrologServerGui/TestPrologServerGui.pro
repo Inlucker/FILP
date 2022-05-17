@@ -11,6 +11,7 @@ CONFIG += c++14
 SOURCES += \
     Iterator/AbstractIterator.cpp \
     Matrix/AbstractMtrx.cpp \
+    SetupPoleWindow.cpp \
     images.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -30,11 +31,13 @@ HEADERS += \
     Matrix/AbstractMtrx.h \
     Matrix/BaseMtrx.h \
     Matrix/BaseMtrx.hpp \
+    SetupPoleWindow.h \
     images.h \
     mainwindow.h \
     pole.h
 
 FORMS += \
+    SetupPoleWindow.ui \
     mainwindow.ui
 
 # Default rules for deployment.
