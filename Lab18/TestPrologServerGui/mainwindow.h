@@ -78,6 +78,9 @@ private:
     void usualSet4();
     //void threadFunc();
 
+private slots:
+    void redrawSlot();
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *networkManager;

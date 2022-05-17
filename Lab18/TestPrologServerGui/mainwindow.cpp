@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     //image = new QImage(width, height, QImage::Format_ARGB32);
 
     setup_pole_window = make_unique<SetupPoleWindow>();
+    connect(setup_pole_window.get(), SIGNAL(setupPole()), this, SLOT(redrawSlot()));
 
     busy = false;
     t.release();
@@ -229,6 +230,11 @@ void MainWindow::usualSet4()
     pole->reset(-1);
     setPlayer(0, 0);
     setFinish(0, 1);
+}
+
+void MainWindow::redrawSlot()
+{
+    redraw();
 }
 
 void MainWindow::onResult(QNetworkReply *reply)

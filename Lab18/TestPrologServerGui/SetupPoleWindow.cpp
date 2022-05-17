@@ -15,6 +15,8 @@ SetupPoleWindow::SetupPoleWindow(QWidget *parent, int w, int h, shared_ptr<Image
     pole->reset(-1);
     btn = make_shared<QPushButton>("Set Pole", this);
     btn->setFixedSize(200, 36);
+    connect(btn.get(), SIGNAL(clicked()), this, SLOT(clickedBtn()));
+
     updateSize(w, h);
 }
 
@@ -45,13 +47,13 @@ void SetupPoleWindow::setPole(shared_ptr<BaseMtrx<int>> p)
 {
     pole = p;
     updateSize(pole->getWidth(), pole->getHeight());
-    //redrawPole();
 }
 
 void SetupPoleWindow::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
     {
+        placeCell();
         LMB_is_pressed = false;
         holding = -10;
         update();
@@ -67,8 +69,6 @@ void SetupPoleWindow::mousePressEvent(QMouseEvent *event)
     {
         LMB_is_pressed = true;
         holding = getHolding(event->position().x(),event->position().y());
-        //if (isInCell(event->position().x(),event->position().y(), empty_x, empty_y)
-        //if (clicked_player())
     }
 
     if (event->button() == Qt::RightButton && !RMB_is_pressed && this->rect().contains(event->pos()))
@@ -81,18 +81,26 @@ void SetupPoleWindow::mouseMoveEvent(QMouseEvent *event)
     mouse_x = event->position().x();
     mouse_y = event->position().y();
     if (LMB_is_pressed && holding != -10)
-    {
         update();
-        //drawHoldingCell(mouse_x, mouse_y);
-    }
 }
 
 void SetupPoleWindow::paintEvent(QPaintEvent *pEvent)
 {
     image->fill(0);
-    drawPole();
-    drawCells();
-    drawHoldingCell(mouse_x, mouse_y);
+    try
+    {
+        drawPole();
+        drawCells();
+        drawHoldingCell(mouse_x, mouse_y);
+    }
+    catch (int er)
+    {
+        qDebug() << er;
+    }
+    catch (...)
+    {
+        qDebug() << "unexpected error";
+    }
 
     QPainter painter(this);
     painter.drawImage(18, 18, *image);
@@ -157,7 +165,7 @@ int SetupPoleWindow::getHolding(int x, int y)
     else if (isInCell(x, y, wall4_x, wall4_y))
         return 4;
     else if (isInCell(x, y, portal_x, portal_y))
-        return 4;
+        return PORTAL;
     else
         return -10;
 }
@@ -198,15 +206,35 @@ void SetupPoleWindow::drawHoldingCell(qreal x, qreal y)
         if (isInPole(x, y))
         {
             QPoint res;
-            int pole_x = int(x/cell_size);
-            int pole_y = int(y/cell_size);
+            pole_x = int(x/cell_size);
+            pole_y = int(y/cell_size);
             res.setX(cell_size * pole_x);
             res.setY(cell_size * pole_y);
             painter.drawImage(res, pictures->getImage(holding));
         }
         else
+        {
+            pole_x = -1;
+            pole_y = -1;
             painter.drawImage(x-cell_size/2, y-cell_size/2, pictures->getImage(holding));
+        }
     }
+}
+
+void SetupPoleWindow::placeCell()
+{
+    if (pole_x >= 0 && pole_y >= 0 && holding != -10)
+    {
+        (*pole)(pole_x, pole_y) = holding;
+        //cout << "placeCell" << endl;
+        update();
+    }
+}
+
+void SetupPoleWindow::clickedBtn()
+{
+    this->close();
+    emit setupPole();
 }
 
 

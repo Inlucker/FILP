@@ -41,6 +41,15 @@ private:
     void drawCells();
     void drawHoldingCell(qreal x, qreal y);
 
+    void placeCell();
+
+signals:
+    void setupPole(); // Сигнал для первого окна на открытие
+
+private slots:
+    void clickedBtn();
+
+
 private:
     Ui::SetupPoleWindow *ui;
 
@@ -68,6 +77,9 @@ private:
     int holding = -10;
 
     qreal mouse_x = 0, mouse_y = 0;
+
+    int pole_x = -1;
+    int pole_y = -1;
 };
 
 #endif // SETUPPOLEWINDOW_H
