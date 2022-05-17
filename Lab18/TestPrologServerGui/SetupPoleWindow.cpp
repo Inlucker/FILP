@@ -133,6 +133,13 @@ bool SetupPoleWindow::isInCell(int x, int y, int cell_x, int cell_y)
     return res;
 }
 
+bool SetupPoleWindow::isInPole(qreal x, qreal y)
+{
+    bool res = (x >= 0 && x <= my_width*cell_size &&
+                y >= 0 && y <= my_height*cell_size);
+    return res;
+}
+
 int SetupPoleWindow::getHolding(int x, int y)
 {
     x -= left;
@@ -183,10 +190,22 @@ void SetupPoleWindow::drawCells()
 
 void SetupPoleWindow::drawHoldingCell(qreal x, qreal y)
 {
+    x -= left;
+    y -= top;
     if (holding != -10)
     {
         QPainter painter(image.get());
-        painter.drawImage(x-cell_size, y-cell_size, pictures->getImage(holding));
+        if (isInPole(x, y))
+        {
+            QPoint res;
+            int pole_x = int(x/cell_size);
+            int pole_y = int(y/cell_size);
+            res.setX(cell_size * pole_x);
+            res.setY(cell_size * pole_y);
+            painter.drawImage(res, pictures->getImage(holding));
+        }
+        else
+            painter.drawImage(x-cell_size/2, y-cell_size/2, pictures->getImage(holding));
     }
 }
 

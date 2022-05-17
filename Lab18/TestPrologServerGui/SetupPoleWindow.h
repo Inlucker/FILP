@@ -34,6 +34,7 @@ private:
     void updateSize();
     void updatePole();
     bool isInCell(int x, int y, int cell_x, int cell_y);
+    bool isInPole(qreal x, qreal y);
     int getHolding(int x, int y);
 
     void drawPole();
