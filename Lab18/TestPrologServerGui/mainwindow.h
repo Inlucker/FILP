@@ -83,6 +83,8 @@ private:
 private slots:
     void redrawSlot();
 
+    void on_edit_pole_window_btn_clicked();
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *networkManager;

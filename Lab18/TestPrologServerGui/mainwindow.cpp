@@ -259,15 +259,17 @@ void MainWindow::onResult(QNetworkReply *reply)
             QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
 
             readJson(document);
+            start();
             //readJson3(document);
         }
         else
         {
             qDebug() << "Reply Error";
+            QMessageBox::information(this, "Error", "No solvation");
+
         }
         reply->deleteLater();
         //busy = false;
-        start();
     }
     catch (BaseError& er)
     {
@@ -599,6 +601,14 @@ void MainWindow::on_setup_pole_window_btn_clicked()
     int n = ui->spinBox->value();
     updateSize(n);
     redraw();
+    setup_pole_window->setPole(pole);
+    setup_pole_window->show();
+    setup_pole_window->activateWindow();
+}
+
+
+void MainWindow::on_edit_pole_window_btn_clicked()
+{
     setup_pole_window->setPole(pole);
     setup_pole_window->show();
     setup_pole_window->activateWindow();
